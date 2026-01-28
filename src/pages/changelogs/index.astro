@@ -1,0 +1,104 @@
+---
+import { getCollection } from 'astro:content';
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+
+const changelogs = await getCollection('changelogs');
+
+// Count packages per source
+const sourceCounts = new Map<string, Set<string>>();
+
+for (const entry of changelogs) {
+	const parts = entry.id.split('/');
+	const source = parts[0];
+	let packageName: string;
+
+	if (source === 'github') {
+		packageName = `${parts[1]}/${parts[2]}`;
+	} else {
+		packageName = parts[1];
+	}
+
+	if (!sourceCounts.has(source)) {
+		sourceCounts.set(source, new Set());
+	}
+	sourceCounts.get(source)!.add(packageName);
+}
+
+const sourceLabels: Record<string, string> = {
+	npm: 'npm',
+	github: 'GitHub',
+	crates: 'Crates.io',
+	pypi: 'PyPI',
+	rubygems: 'RubyGems',
+};
+
+const sourceDescriptions: Record<string, string> = {
+	npm: 'JavaScript packages from the npm registry',
+	github: 'Release notes from GitHub repositories',
+	crates: 'Rust crates from crates.io',
+	pypi: 'Python packages from PyPI',
+	rubygems: 'Ruby gems from RubyGems.org',
+};
+
+const sourceOrder = ['npm', 'github', 'crates', 'pypi', 'rubygems'];
+const sources = sourceOrder.filter((s) => sourceCounts.has(s));
+---
+
+<StarlightPage
+	frontmatter={{
+		title: 'Changelogs',
+		description: 'Browse changelogs from npm, GitHub, Crates.io, PyPI, and RubyGems',
+	}}
+>
+	<p>Browse changelogs from popular package registries and GitHub releases.</p>
+
+	<div class="sources-grid">
+		{sources.map((source) => {
+			const count = sourceCounts.get(source)!.size;
+			return (
+				<a href={`/changelogs/${source}/`} class="source-card">
+					<h2>{sourceLabels[source]}</h2>
+					<p class="description">{sourceDescriptions[source]}</p>
+					<p class="count">{count} packages</p>
+				</a>
+			);
+		})}
+	</div>
+</StarlightPage>
+
+<style>
+	.sources-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+		gap: 1rem;
+		margin-top: 1.5rem;
+	}
+	.source-card {
+		display: block;
+		border: 1px solid var(--sl-color-gray-5);
+		border-radius: 0.5rem;
+		padding: 1.5rem;
+		background: var(--sl-color-gray-6);
+		text-decoration: none;
+		transition: border-color 0.2s, background 0.2s;
+	}
+	.source-card:hover {
+		border-color: var(--sl-color-accent);
+		background: var(--sl-color-gray-5);
+	}
+	.source-card h2 {
+		margin: 0 0 0.5rem 0;
+		font-size: 1.25rem;
+		color: var(--sl-color-white);
+	}
+	.description {
+		margin: 0 0 0.75rem 0;
+		font-size: 0.875rem;
+		color: var(--sl-color-gray-2);
+	}
+	.count {
+		margin: 0;
+		font-size: 0.875rem;
+		color: var(--sl-color-gray-3);
+	}
+</style>

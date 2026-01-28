@@ -1,0 +1,204 @@
+---
+import { getCollection } from "astro:content";
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { extractVersionFromPath } from "../../../../../changelog/utils";
+
+const sourceLabels: Record<string, string> = {
+  crates: "Crates.io",
+  npm: "npm",
+  pypi: "PyPI",
+  rubygems: "RubyGems",
+};
+
+export async function getStaticPaths() {
+  const changelogs = await getCollection("changelogs");
+  const packages = new Map<string, { source: string; org: string; pkg: string }>();
+
+  for (const entry of changelogs) {
+    const parts = entry.id.split("/");
+    const source = parts[0];
+
+    // Skip github - handled by separate route
+    if (source === "github") continue;
+
+    // Only handle scoped packages
+    if (!parts[1].startsWith("@")) continue;
+
+    const org = parts[1].slice(1); // Remove @ prefix
+    const pkg = parts[2];
+    const key = `${source}/@${org}/${pkg}`;
+    if (!packages.has(key)) {
+      packages.set(key, { source, org, pkg });
+    }
+  }
+
+  return [...packages.values()].map(({ source, org, pkg }) => ({
+    params: { source, org, pkg },
+  }));
+}
+
+const { source, org, pkg } = Astro.params;
+const fullPkg = `@${org}/${pkg}`;
+const changelogs = await getCollection("changelogs", ({ id }) =>
+  id.startsWith(`${source}/@${org}/${pkg}/`),
+);
+
+// Sort versions (newest first)
+const versions = changelogs.sort((a, b) => {
+  const versionA = extractVersionFromPath(a.id);
+  const versionB = extractVersionFromPath(b.id);
+
+  return versionB.localeCompare(versionA, undefined, { numeric: true });
+});
+
+const sourceLabel = sourceLabels[source!] || source;
+---
+
+<StarlightPage
+  frontmatter={{
+    title: fullPkg,
+    description: `Changelog versions for ${fullPkg} from ${sourceLabel}`,
+  }}
+>
+  <p class="source-info">
+    <a href={`/changelogs/${source}/`} class="badge">{sourceLabel}</a>
+    <span class="separator">/</span>
+    <span class="package-name">{fullPkg}</span>
+  </p>
+
+  <div class="filter-container">
+    <input
+      type="text"
+      id="version-filter"
+      placeholder="Filter versions..."
+      class="filter-input"
+    />
+    <span class="version-count">
+      <span id="visible-count">{versions.length}</span> of {versions.length} versions
+    </span>
+  </div>
+
+  <div class="versions-list" id="versions-list">
+    {
+      versions.map((entry) => {
+        const version = extractVersionFromPath(entry.filePath ?? entry.id);
+
+        return (
+          <a
+            href={`/changelogs/${source}/@${org}/${pkg}/${version}/`}
+            class="version-item"
+            data-version={version}
+          >
+            <span class="version">{version}</span>
+          </a>
+        );
+      })
+    }
+  </div>
+</StarlightPage>
+
+<style>
+  .source-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .badge {
+    background: var(--sl-color-accent);
+    color: var(--sl-color-black);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .badge:hover {
+    opacity: 0.9;
+  }
+  .separator {
+    color: var(--sl-color-gray-3);
+  }
+  .package-name {
+    font-family: var(--sl-font-mono);
+    color: var(--sl-color-gray-2);
+  }
+  .filter-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .filter-input {
+    flex: 1;
+    min-width: 200px;
+    max-width: 300px;
+    padding: 0.5rem 0.75rem;
+    background: var(--sl-color-gray-6);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.25rem;
+    color: var(--sl-color-white);
+    font-family: var(--sl-font-mono);
+    font-size: 0.875rem;
+  }
+  .filter-input:focus {
+    outline: none;
+    border-color: var(--sl-color-accent);
+  }
+  .filter-input::placeholder {
+    color: var(--sl-color-gray-3);
+  }
+  .version-count {
+    color: var(--sl-color-gray-3);
+    font-size: 0.875rem;
+  }
+  .versions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .version-item {
+    display: block;
+    padding: 0.5rem 0;
+    text-decoration: none;
+    font-family: var(--sl-font-mono);
+    font-size: 0.875rem;
+    border-bottom: 1px solid var(--sl-color-gray-6);
+  }
+  .version-item:first-child {
+    border-top: 1px solid var(--sl-color-gray-6);
+  }
+  .version-item:hover {
+    background: var(--sl-color-gray-6);
+  }
+  .version {
+    color: var(--sl-color-white);
+  }
+  .version-item.hidden {
+    display: none;
+  }
+</style>
+
+<script>
+  const filterInput = document.getElementById('version-filter') as HTMLInputElement;
+  const versionsList = document.getElementById('versions-list');
+  const visibleCount = document.getElementById('visible-count');
+  const versionItems = versionsList?.querySelectorAll('.version-item') ?? [];
+
+  filterInput?.addEventListener('input', () => {
+    const query = filterInput.value.toLowerCase().trim();
+    let visible = 0;
+
+    versionItems.forEach((item) => {
+      const version = item.getAttribute('data-version')?.toLowerCase() ?? '';
+      const matches = version.includes(query);
+      item.classList.toggle('hidden', !matches);
+      if (matches) visible++;
+    });
+
+    if (visibleCount) {
+      visibleCount.textContent = String(visible);
+    }
+  });
+</script>

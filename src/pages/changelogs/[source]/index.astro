@@ -1,0 +1,208 @@
+---
+import { getCollection } from "astro:content";
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { extractVersionFromPath, sortChangelogEntriesByVersion } from "../../../changelog/utils";
+
+const sourceLabels: Record<string, string> = {
+  crates: "Crates.io",
+  npm: "npm",
+  pypi: "PyPI",
+  rubygems: "RubyGems",
+  github: "GitHub",
+};
+
+export async function getStaticPaths() {
+  const sources = ["crates", "npm", "pypi", "rubygems", "github"];
+
+  return sources.map((source) => ({ params: { source } }));
+}
+
+const { source } = Astro.params;
+const changelogs = await getCollection("changelogs", ({ id }) =>
+  id.startsWith(`${source}/`),
+);
+
+// Group by package
+type ChangelogEntry = (typeof changelogs)[number];
+const packages = new Map<string, ChangelogEntry[]>();
+
+for (const entry of changelogs) {
+  const parts = entry.id.split("/");
+  let packageName: string;
+
+  if (source === "github") {
+    packageName = `${parts[1]}/${parts[2]}`;
+  } else if (parts[1].startsWith("@")) {
+    // Scoped package: @org/package
+    packageName = `${parts[1]}/${parts[2]}`;
+  } else {
+    packageName = parts[1];
+  }
+
+  if (!packages.has(packageName)) {
+    packages.set(packageName, []);
+  }
+  packages.get(packageName)?.push(entry);
+}
+
+// Sort versions within each package
+for (const [, versions] of packages) {
+  sortChangelogEntriesByVersion(versions);
+}
+
+const sortedPackages = [...packages.entries()].sort(([a], [b]) =>
+  a.localeCompare(b),
+);
+const sourceLabel = source ? sourceLabels[source] ?? source : "Unknown";
+---
+
+<StarlightPage
+  frontmatter={{
+    title: `${sourceLabel} Changelogs`,
+    description: `Browse changelogs from ${sourceLabel}`,
+  }}
+>
+  <div class="filter-container">
+    <input
+      type="text"
+      id="package-filter"
+      placeholder="Filter packages..."
+      class="filter-input"
+    />
+    <span class="package-count">
+      <span id="visible-count">{sortedPackages.length}</span> of {
+        sortedPackages.length
+      } packages
+    </span>
+  </div>
+
+  <div class="packages-grid" id="packages-grid">
+    {
+      sortedPackages.map(([packageName, versions]) => {
+        const packagePath =
+          source === "github"
+            ? `/changelogs/github/${packageName}/`
+            : `/changelogs/${source}/${packageName}/`;
+        const latestVersion = extractVersionFromPath(
+          versions[0].filePath ?? "",
+        );
+
+        return (
+          <a
+            href={packagePath}
+            class="package-card"
+            data-package={packageName.toLowerCase()}
+          >
+            <h3>{packageName}</h3>
+            <p class="version-info">
+              <span class="latest">Latest: {latestVersion}</span>
+              <span class="count">{versions.length} versions</span>
+            </p>
+          </a>
+        );
+      })
+    }
+  </div>
+</StarlightPage>
+
+<style>
+  .filter-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .filter-input {
+    flex: 1;
+    min-width: 200px;
+    max-width: 300px;
+    padding: 0.5rem 0.75rem;
+    background: var(--sl-color-gray-6);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.25rem;
+    color: var(--sl-color-white);
+    font-family: var(--sl-font-mono);
+    font-size: 0.875rem;
+  }
+  .filter-input:focus {
+    outline: none;
+    border-color: var(--sl-color-accent);
+  }
+  .filter-input::placeholder {
+    color: var(--sl-color-gray-3);
+  }
+  .package-count {
+    color: var(--sl-color-gray-3);
+    font-size: 0.875rem;
+  }
+  .packages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .package-card {
+    display: block;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background: var(--sl-color-gray-6);
+    text-decoration: none;
+    transition:
+      border-color 0.2s,
+      background 0.2s;
+  }
+  .package-card:hover {
+    border-color: var(--sl-color-accent);
+    background: var(--sl-color-gray-5);
+  }
+  .package-card h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    font-family: var(--sl-font-mono);
+    color: var(--sl-color-white);
+    word-break: break-all;
+  }
+  .version-info {
+    margin: 0;
+    font-size: 0.875rem;
+    display: flex;
+    justify-content: space-between;
+    color: var(--sl-color-gray-2);
+  }
+  .latest {
+    font-family: var(--sl-font-mono);
+  }
+  .count {
+    color: var(--sl-color-gray-3);
+  }
+  .package-card.hidden {
+    display: none;
+  }
+</style>
+
+<script>
+  const filterInput = document.getElementById(
+    "package-filter",
+  ) as HTMLInputElement;
+  const packagesGrid = document.getElementById("packages-grid");
+  const visibleCount = document.getElementById("visible-count");
+  const packageCards = packagesGrid?.querySelectorAll(".package-card") ?? [];
+
+  filterInput?.addEventListener("input", () => {
+    const query = filterInput.value.toLowerCase().trim();
+    let visible = 0;
+
+    packageCards.forEach((card) => {
+      const packageName = card.getAttribute("data-package") ?? "";
+      const matches = packageName.includes(query);
+      card.classList.toggle("hidden", !matches);
+      if (matches) visible++;
+    });
+
+    if (visibleCount) {
+      visibleCount.textContent = String(visible);
+    }
+  });
+</script>
