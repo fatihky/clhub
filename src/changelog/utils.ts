@@ -1,5 +1,10 @@
 import { compareVersionsDescending } from './version-fetchers/version-comparator';
 
+interface ChangelogEntry {
+  id: string;
+  filePath?: string;
+}
+
 /**
  * Extracts the version name from a filepath.
  * Gets the filename and removes the .md extension.
@@ -14,9 +19,12 @@ export function extractVersionFromPath(filepath: string): string {
   return filename.replace(/\.md$/, '');
 }
 
-interface ChangelogEntry {
-  id: string;
-  filePath?: string;
+/**
+ * Extracts the version from a changelog entry, preferring filePath over id
+ * to preserve original casing from the filesystem.
+ */
+export function extractVersionFromEntry(entry: ChangelogEntry): string {
+  return extractVersionFromPath(entry.filePath ?? entry.id);
 }
 
 /**

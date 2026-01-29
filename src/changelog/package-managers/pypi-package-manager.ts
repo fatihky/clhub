@@ -24,6 +24,17 @@ export class PyPIPackageManager extends PackageManager {
     return `https://pypi.org/project/${packageName}`;
   }
 
+  async packageExists(packageName: string): Promise<boolean> {
+    const url = `https://pypi.org/pypi/${encodeURIComponent(packageName)}/json`;
+    const response = await fetch(url, {
+      method: 'HEAD',
+      headers: {
+        'User-Agent': 'changelog-fetcher',
+      },
+    });
+    return response.ok;
+  }
+
   async getVersions(
     packageName: string,
     options?: VersionFetcherOptions,

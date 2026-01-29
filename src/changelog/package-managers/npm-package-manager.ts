@@ -21,6 +21,17 @@ export class NpmPackageManager extends PackageManager {
     return `https://www.npmjs.com/package/${packageName}`;
   }
 
+  async packageExists(packageName: string): Promise<boolean> {
+    const url = `https://registry.npmjs.org/${encodeURIComponent(packageName)}`;
+    const response = await fetch(url, {
+      method: 'HEAD',
+      headers: {
+        'User-Agent': 'changelog-fetcher',
+      },
+    });
+    return response.ok;
+  }
+
   async getVersions(
     packageName: string,
     options?: VersionFetcherOptions,

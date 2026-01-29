@@ -8,14 +8,22 @@ const changelogs = await getCollection('changelogs');
 const sourceCounts = new Map<string, Set<string>>();
 
 for (const entry of changelogs) {
+	const filePath = entry.filePath || "";
 	const parts = entry.id.split('/');
 	const source = parts[0];
 	let packageName: string;
 
 	if (source === 'github') {
-		packageName = `${parts[1]}/${parts[2]}`;
+		const match = filePath.match(/changelogs\/github\/([^/]+)\/([^/]+)\//);
+		packageName = match ? `${match[1]}/${match[2]}` : `${parts[1]}/${parts[2]}`;
 	} else {
-		packageName = parts[1];
+		// Check for scoped packages using filePath (ID strips @ symbol)
+		const scopedMatch = filePath.match(/changelogs\/\w+\/@([^/]+)\/([^/]+)\//);
+		if (scopedMatch) {
+			packageName = `@${scopedMatch[1]}/${scopedMatch[2]}`;
+		} else {
+			packageName = parts[1];
+		}
 	}
 
 	if (!sourceCounts.has(source)) {

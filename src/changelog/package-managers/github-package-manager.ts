@@ -26,6 +26,23 @@ export class GitHubPackageManager extends PackageManager {
     return `https://github.com/${packageName}`;
   }
 
+  async packageExists(packageName: string): Promise<boolean> {
+    const url = `https://api.github.com/repos/${packageName}`;
+    const headers: Record<string, string> = {
+      Accept: 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      'User-Agent': 'changelog-fetcher',
+    };
+
+    const githubPat = process.env.GITHUB_PAT;
+    if (githubPat) {
+      headers.Authorization = `Bearer ${githubPat}`;
+    }
+
+    const response = await fetch(url, { method: 'HEAD', headers });
+    return response.ok;
+  }
+
   private parseNextLink(linkHeader: string | null): string | null {
     if (!linkHeader) return null;
 

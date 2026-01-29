@@ -14,6 +14,12 @@ export abstract class PackageManager {
     return this.packageUrl(packageName);
   }
 
+  /**
+   * Check if a package exists on the registry.
+   * Returns true if the package exists, false otherwise.
+   */
+  abstract packageExists(packageName: string): Promise<boolean>;
+
   abstract getVersions(
     packageName: string,
     options?: VersionFetcherOptions,

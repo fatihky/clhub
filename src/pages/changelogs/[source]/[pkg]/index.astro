@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import { extractVersionFromPath, sortChangelogEntriesByVersion } from "../../../../changelog/utils";
+import { getPackageLinks } from "../../../../changelog/packages";
 
 const sourceLabels: Record<string, string> = {
   crates: "Crates.io",
@@ -15,14 +16,15 @@ export async function getStaticPaths() {
   const packages = new Map<string, { source: string; pkg: string }>();
 
   for (const entry of changelogs) {
+    const filePath = entry.filePath || "";
     const parts = entry.id.split("/");
     const source = parts[0];
 
     // Skip github - handled by separate route
     if (source === "github") continue;
 
-    // Skip scoped packages - handled by separate route
-    if (parts[1].startsWith("@")) continue;
+    // Skip scoped packages - handled by separate route (use filePath since ID strips @)
+    if (filePath.match(/changelogs\/\w+\/@[^/]+\//)) continue;
 
     const pkg = parts[1];
     const key = `${source}/${pkg}`;
@@ -45,6 +47,7 @@ const changelogs = await getCollection("changelogs", ({ id }) =>
 const versions = sortChangelogEntriesByVersion(changelogs);
 
 const sourceLabel = source ? sourceLabels[source] ?? source : "Unknown";
+const packageLinks = source && pkg ? await getPackageLinks(source, pkg) : undefined;
 ---
 
 <StarlightPage
@@ -58,6 +61,14 @@ const sourceLabel = source ? sourceLabels[source] ?? source : "Unknown";
     <span class="separator">/</span>
     <span class="package-name">{pkg}</span>
   </p>
+
+  {packageLinks && (
+    <p class="package-links">
+      <a href={packageLinks.homepage} target="_blank" rel="noopener noreferrer" class="link">
+        View on {sourceLabel}
+      </a>
+    </p>
+  )}
 
   <div class="filter-container">
     <input
@@ -115,6 +126,20 @@ const sourceLabel = source ? sourceLabels[source] ?? source : "Unknown";
   .package-name {
     font-family: var(--sl-font-mono);
     color: var(--sl-color-gray-2);
+  }
+  .package-links {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  .package-links .link {
+    color: var(--sl-color-text-accent);
+    text-decoration: none;
+  }
+  .package-links .link:hover {
+    text-decoration: underline;
   }
   .filter-container {
     display: flex;

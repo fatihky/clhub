@@ -16,25 +16,29 @@ export async function getStaticPaths() {
 
   return changelogs
     .filter((entry) => {
+      // Use filePath to detect scoped packages (ID strips @ symbol)
+      const filePath = entry.filePath || "";
       // Skip github - handled by separate route
-      if (entry.id.startsWith("github/")) return false;
+      if (filePath.includes("/github/")) return false;
       // Only handle scoped packages
-      const parts = entry.id.split("/");
-      return parts[1].startsWith("@");
+      return filePath.match(/changelogs\/\w+\/@[^/]+\/[^/]+\//);
     })
     .map((entry) => {
-      const parts = entry.id.split("/");
+      const filePath = entry.filePath || "";
+      const match = filePath.match(/changelogs\/(\w+)\/@([^/]+)\/([^/]+)\//);
+      if (!match) return null;
 
       return {
         params: {
-          source: parts[0],
-          org: parts[1].slice(1), // Remove @ prefix
-          pkg: parts[2],
-          version: extractVersionFromPath(entry.filePath ?? entry.id),
+          source: match[1],
+          org: match[2],
+          pkg: match[3],
+          version: extractVersionFromPath(filePath),
         },
         props: { entry },
       };
-    });
+    })
+    .filter(Boolean);
 }
 
 const { source, org, pkg, version } = Astro.params;

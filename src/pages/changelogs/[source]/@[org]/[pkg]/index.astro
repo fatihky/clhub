@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import { extractVersionFromPath } from "../../../../../changelog/utils";
+import { getPackageLinks } from "../../../../../changelog/packages";
 
 const sourceLabels: Record<string, string> = {
   crates: "Crates.io",
@@ -15,17 +16,18 @@ export async function getStaticPaths() {
   const packages = new Map<string, { source: string; org: string; pkg: string }>();
 
   for (const entry of changelogs) {
-    const parts = entry.id.split("/");
-    const source = parts[0];
+    // Use filePath to detect scoped packages (ID strips @ symbol)
+    const filePath = entry.filePath || "";
+    const match = filePath.match(/changelogs\/(\w+)\/@([^/]+)\/([^/]+)\//);
+    if (!match) continue;
+
+    const source = match[1];
+    const org = match[2];
+    const pkg = match[3];
 
     // Skip github - handled by separate route
     if (source === "github") continue;
 
-    // Only handle scoped packages
-    if (!parts[1].startsWith("@")) continue;
-
-    const org = parts[1].slice(1); // Remove @ prefix
-    const pkg = parts[2];
     const key = `${source}/@${org}/${pkg}`;
     if (!packages.has(key)) {
       packages.set(key, { source, org, pkg });
@@ -39,8 +41,10 @@ export async function getStaticPaths() {
 
 const { source, org, pkg } = Astro.params;
 const fullPkg = `@${org}/${pkg}`;
-const changelogs = await getCollection("changelogs", ({ id }) =>
-  id.startsWith(`${source}/@${org}/${pkg}/`),
+// Use filePath for filtering since ID strips @ symbol
+const pathPrefix = `changelogs/${source}/@${org}/${pkg}/`;
+const changelogs = await getCollection("changelogs", (entry) =>
+  entry.filePath?.startsWith(pathPrefix) ?? false,
 );
 
 // Sort versions (newest first)
@@ -52,6 +56,7 @@ const versions = changelogs.sort((a, b) => {
 });
 
 const sourceLabel = sourceLabels[source!] || source;
+const packageLinks = source ? await getPackageLinks(source, fullPkg) : undefined;
 ---
 
 <StarlightPage
@@ -65,6 +70,14 @@ const sourceLabel = sourceLabels[source!] || source;
     <span class="separator">/</span>
     <span class="package-name">{fullPkg}</span>
   </p>
+
+  {packageLinks && (
+    <p class="package-links">
+      <a href={packageLinks.homepage} target="_blank" rel="noopener noreferrer" class="link">
+        View on {sourceLabel}
+      </a>
+    </p>
+  )}
 
   <div class="filter-container">
     <input
@@ -122,6 +135,20 @@ const sourceLabel = sourceLabels[source!] || source;
   .package-name {
     font-family: var(--sl-font-mono);
     color: var(--sl-color-gray-2);
+  }
+  .package-links {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  .package-links .link {
+    color: var(--sl-color-text-accent);
+    text-decoration: none;
+  }
+  .package-links .link:hover {
+    text-decoration: underline;
   }
   .filter-container {
     display: flex;

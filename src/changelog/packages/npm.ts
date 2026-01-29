@@ -122,6 +122,16 @@ export const npmPackages = packageMapToArray(pm, {
   typescript: {
     repositoryUrl: 'https://github.com/microsoft/TypeScript',
   },
+  vite: {
+    repositoryUrl: 'https://github.com/vitejs/vite',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: { tagPrefix: 'v' },
+  },
+  'whatsapp-web.js': {
+    repositoryUrl: 'https://github.com/pedroslopez/whatsapp-web.js',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: { tagPrefix: 'v' },
+  },
   zod: {
     repositoryUrl: 'https://github.com/colinhacks/zod',
     versionFetcherOptions: {

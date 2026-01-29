@@ -2,18 +2,24 @@
 import { getCollection, render } from 'astro:content';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import CopyButton from '../../../../../components/CopyButton.astro';
-import { extractVersionFromPath } from '../../../../../changelog/utils';
+import { extractVersionFromEntry } from '../../../../../changelog/utils';
 
 export async function getStaticPaths() {
 	const changelogs = await getCollection('changelogs', ({ id }) => id.startsWith('github/'));
 
 	return changelogs.map((entry) => {
-		const parts = entry.id.split('/');
+		// Use filePath to get original casing from filesystem
+		const filePath = entry.filePath || entry.id;
+		const match = filePath.match(/changelogs\/github\/([^/]+)\/([^/]+)\//i)
+			|| entry.id.match(/github\/([^/]+)\/([^/]+)\//i);
+		const owner = match ? match[1] : entry.id.split('/')[1];
+		const repo = match ? match[2] : entry.id.split('/')[2];
+
 		return {
 			params: {
-				owner: parts[1],
-				repo: parts[2],
-				version: extractVersionFromPath(entry.id),
+				owner,
+				repo,
+				version: extractVersionFromEntry(entry),
 			},
 			props: { entry },
 		};

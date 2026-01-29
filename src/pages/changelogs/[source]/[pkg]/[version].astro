@@ -16,11 +16,11 @@ export async function getStaticPaths() {
 
   return changelogs
     .filter((entry) => {
+      const filePath = entry.filePath || "";
       // Skip github - handled by separate route
       if (entry.id.startsWith("github/")) return false;
-      // Skip scoped packages - handled by separate route
-      const parts = entry.id.split("/");
-      if (parts[1].startsWith("@")) return false;
+      // Skip scoped packages - handled by separate route (use filePath since ID strips @)
+      if (filePath.match(/changelogs\/\w+\/@[^/]+\//)) return false;
       return true;
     })
     .map((entry) => {

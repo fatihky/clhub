@@ -21,6 +21,17 @@ export class RubyGemsPackageManager extends PackageManager {
     return `https://rubygems.org/gems/${packageName}`;
   }
 
+  async packageExists(packageName: string): Promise<boolean> {
+    const url = `https://rubygems.org/api/v1/gems/${encodeURIComponent(packageName)}.json`;
+    const response = await fetch(url, {
+      method: 'HEAD',
+      headers: {
+        'User-Agent': 'changelog-fetcher',
+      },
+    });
+    return response.ok;
+  }
+
   async getVersions(
     packageName: string,
     options?: VersionFetcherOptions,

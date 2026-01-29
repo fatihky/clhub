@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
-import { extractVersionFromPath, sortChangelogEntriesByVersion } from "../../../../../changelog/utils";
+import { extractVersionFromEntry, sortChangelogEntriesByVersion } from "../../../../../changelog/utils";
 
 export async function getStaticPaths() {
   const changelogs = await getCollection("changelogs", ({ id }) =>
@@ -10,12 +10,18 @@ export async function getStaticPaths() {
   const repos = new Map<string, { owner: string; repo: string }>();
 
   for (const entry of changelogs) {
-    const parts = entry.id.split("/");
-    const owner = parts[1];
-    const repo = parts[2];
-    const key = `${owner}/${repo}`;
-    if (!repos.has(key)) {
-      repos.set(key, { owner, repo });
+    // Use filePath to get original casing from filesystem
+    const filePath = entry.filePath || entry.id;
+    // Extract the github/owner/repo part from the path
+    const match = filePath.match(/changelogs\/github\/([^/]+)\/([^/]+)\//i)
+      || entry.id.match(/github\/([^/]+)\/([^/]+)\//i);
+    if (match) {
+      const owner = match[1];
+      const repo = match[2];
+      const key = `${owner.toLowerCase()}/${repo.toLowerCase()}`;
+      if (!repos.has(key)) {
+        repos.set(key, { owner, repo });
+      }
     }
   }
 
@@ -25,14 +31,16 @@ export async function getStaticPaths() {
 }
 
 const { owner, repo } = Astro.params;
+const prefix = `github/${owner}/${repo}/`.toLowerCase();
 const changelogs = await getCollection("changelogs", ({ id }) =>
-  id.startsWith(`github/${owner}/${repo}/`),
+  id.toLowerCase().startsWith(prefix),
 );
 
 // Sort versions (newest first)
 const versions = sortChangelogEntriesByVersion(changelogs);
 
 const fullName = `${owner}/${repo}`;
+const repoUrl = `https://github.com/${owner}/${repo}`;
 ---
 
 <StarlightPage
@@ -45,6 +53,16 @@ const fullName = `${owner}/${repo}`;
     <a href="/changelogs/github/" class="badge">GitHub</a>
     <span class="separator">/</span>
     <span class="package-name">{fullName}</span>
+  </p>
+
+  <p class="package-links">
+    <a href={repoUrl} target="_blank" rel="noopener noreferrer" class="link">
+      Repository
+    </a>
+    <span class="separator">·</span>
+    <a href={`${repoUrl}/releases`} target="_blank" rel="noopener noreferrer" class="link">
+      Releases
+    </a>
   </p>
 
   <div class="filter-container">
@@ -62,7 +80,7 @@ const fullName = `${owner}/${repo}`;
   <div class="versions-list" id="versions-list">
     {
       versions.map((entry) => {
-        const version = extractVersionFromPath(entry.id);
+        const version = extractVersionFromEntry(entry);
         return (
           <a
             href={`/changelogs/github/${owner}/${repo}/${version}/`}
@@ -102,6 +120,20 @@ const fullName = `${owner}/${repo}`;
   .package-name {
     font-family: var(--sl-font-mono);
     color: var(--sl-color-gray-2);
+  }
+  .package-links {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  .package-links .link {
+    color: var(--sl-color-text-accent);
+    text-decoration: none;
+  }
+  .package-links .link:hover {
+    text-decoration: underline;
   }
   .filter-container {
     display: flex;

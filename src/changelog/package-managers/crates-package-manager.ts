@@ -25,6 +25,17 @@ export class CratesPackageManager extends PackageManager {
     return `https://crates.io/crates/${packageName}`;
   }
 
+  async packageExists(packageName: string): Promise<boolean> {
+    const url = `https://crates.io/api/v1/crates/${encodeURIComponent(packageName)}`;
+    const response = await fetch(url, {
+      method: 'HEAD',
+      headers: {
+        'User-Agent': 'changelog-fetcher (https://github.com/changelog-fetcher)',
+      },
+    });
+    return response.ok;
+  }
+
   async getVersions(
     packageName: string,
     options?: VersionFetcherOptions,
