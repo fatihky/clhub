@@ -3,7 +3,12 @@
     "allow": [
       "WebFetch(domain:docs.astro.build)",
       "Bash(npm run build:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npx astro build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx astro check:*)",
+      "Bash(tree:*)",
+      "Bash(wc:*)"
     ]
   }
 }
