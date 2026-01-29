@@ -1,3 +1,4 @@
+import { gt, lte, valid } from 'semver';
 import { compareVersionsDescending } from './version-fetchers/version-comparator';
 
 interface ChangelogEntry {
@@ -38,6 +39,47 @@ export function sortChangelogEntriesByVersion<T extends ChangelogEntry>(
     const versionA = extractVersionFromPath(a.filePath ?? a.id);
     const versionB = extractVersionFromPath(b.filePath ?? b.id);
 
-    return compareVersionsDescending({ version: versionA }, { version: versionB });
+    return compareVersionsDescending(
+      { version: versionA },
+      { version: versionB },
+    );
+  });
+}
+
+/**
+ * Gets changelog entries within a version range (from < version <= to).
+ * Auto-swaps versions if from > to.
+ * Falls back to string comparison for non-semver versions.
+ */
+export function getVersionsInRange<T extends ChangelogEntry>(
+  entries: T[],
+  fromVersion: string,
+  toVersion: string,
+): T[] {
+  let from = fromVersion;
+  let to = toVersion;
+
+  // Auto-swap if from > to
+  if (valid(from) && valid(to) && gt(from, to)) {
+    [from, to] = [to, from];
+  } else if (!valid(from) || !valid(to)) {
+    // For non-semver, use string comparison
+    if (from > to) {
+      [from, to] = [to, from];
+    }
+  }
+
+  const sorted = sortChangelogEntriesByVersion([...entries]);
+
+  return sorted.filter((entry) => {
+    const v = extractVersionFromEntry(entry);
+
+    if (valid(v) && valid(from) && valid(to)) {
+      // Semver comparison: from < v <= to
+      return gt(v, from) && lte(v, to);
+    }
+
+    // String fallback: from < v <= to
+    return v > from && v <= to;
   });
 }
