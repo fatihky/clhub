@@ -8,6 +8,7 @@ export const githubPackages: Package[] = [
     'toeverything/AFFiNE',
     'https://github.com/toeverything/AFFiNE',
   ),
+  new Package(pm, 'jdx/mise', 'https://github.com/jdx/mise'),
   new Package(pm, 'JerryZLiu/Dayflow', 'https://github.com/JerryZLiu/Dayflow'),
   new Package(
     pm,
