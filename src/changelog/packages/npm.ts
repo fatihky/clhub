@@ -5,6 +5,10 @@ import { packageMapToArray } from './package-map-to-array';
 const pm = PACKAGE_MANAGERS.npm;
 
 export const npmPackages = packageMapToArray(pm, {
+  '@astrojs/starlight': {
+    repositoryUrl: 'https://github.com/withastro/starlight',
+    changelogFetcherOptions: { tagPrefix: '@astrojs/starlight@' },
+  },
   '@fingerprintjs/fingerprintjs': {
     repositoryUrl: 'https://github.com/fingerprintjs/fingerprintjs',
     changelogFetcherOptions: { tagPrefix: 'v' },
@@ -21,6 +25,10 @@ export const npmPackages = packageMapToArray(pm, {
       tagPrefix: '@inquirer/prompts@',
     },
   },
+  '@orama/orama': {
+    repositoryUrl: 'https://github.com/oramasearch/orama',
+    changelogFetcherOptions: { tagPrefix: 'v' },
+  },
   '@standard-schema/spec': {
     repositoryUrl: 'https://github.com/standard-schema/standard-schema',
     changelogFetcherOptions: { tagPrefix: 'v' },
@@ -28,6 +36,10 @@ export const npmPackages = packageMapToArray(pm, {
   antd: {
     repositoryUrl: 'https://github.com/ant-design/ant-design',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+  },
+  astro: {
+    repositoryUrl: 'https://github.com/withastro/astro',
+    changelogFetcherOptions: { tagPrefix: 'astro@' },
   },
   dotenv: {
     repositoryUrl: 'https://github.com/motdotla/dotenv',
@@ -88,6 +100,10 @@ export const npmPackages = packageMapToArray(pm, {
     repositoryUrl: 'https://github.com/npm/cli',
     changelogFetcherOptions: { tagPrefix: 'v' },
   },
+  pagefind: {
+    repositoryUrl: 'https://github.com/pagefind/pagefind',
+    changelogFetcherOptions: { tagPrefix: 'v' },
+  },
   pino: {
     repositoryUrl: 'https://github.com/pinojs/pino',
     changelogFetcherOptions: { tagPrefix: 'v' },
@@ -121,6 +137,10 @@ export const npmPackages = packageMapToArray(pm, {
   },
   semver: {
     repositoryUrl: 'https://github.com/npm/node-semver',
+    changelogFetcherOptions: { tagPrefix: 'v' },
+  },
+  sharp: {
+    repositoryUrl: 'https://github.com/lovell/sharp',
     changelogFetcherOptions: { tagPrefix: 'v' },
   },
   'size-sensor': {
