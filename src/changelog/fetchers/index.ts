@@ -2,6 +2,7 @@ import type { ChangelogFetcher } from '../changelog-fetcher';
 import type { ChangelogFetcherType } from '../package';
 import { GitHubChangelogFileFetcher } from './github-changelog-file';
 import { GitHubReleasesChangelogFetcher } from './github-releases';
+import { GitHubWikiChangelogFetcher } from './github-wiki';
 
 export {
   extractVersionChangelog,
@@ -13,10 +14,12 @@ export {
 } from './github';
 export { GitHubChangelogFileFetcher } from './github-changelog-file';
 export { GitHubReleasesChangelogFetcher } from './github-releases';
+export { fetchGitHubWiki, GitHubWikiChangelogFetcher } from './github-wiki';
 
 const fetchers: Record<ChangelogFetcherType, ChangelogFetcher> = {
   githubReleases: new GitHubReleasesChangelogFetcher(),
   githubChangelogFile: new GitHubChangelogFileFetcher(),
+  githubWiki: new GitHubWikiChangelogFetcher(),
 };
 
 export function getChangelogFetcher(

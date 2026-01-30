@@ -4,11 +4,15 @@ import { docsSchema } from '@astrojs/starlight/schema';
 import { glob } from 'astro/loaders';
 
 const changelogs = defineCollection({
-	loader: glob({ pattern: ['**/*.md', '!**/_not_found.md'], base: './changelogs' }),
-	schema: z.object({}).optional(),
+  loader: glob({
+    pattern: ['**/*.md', '!**/_not_found.md'],
+    base: './changelogs',
+    generateId: ({ entry }) => entry.replace(/\.md$/, ''),
+  }),
+  schema: z.object({}).optional(),
 });
 
 export const collections = {
-	docs: defineCollection({ loader: docsLoader(), schema: docsSchema() }),
-	changelogs,
+  docs: defineCollection({ loader: docsLoader(), schema: docsSchema() }),
+  changelogs,
 };

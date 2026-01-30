@@ -2,7 +2,10 @@ import type { FetchOptions } from './fetchers/github';
 import type { PackageManager } from './package-manager';
 import type { VersionFetcherOptions } from './version-fetchers';
 
-export type ChangelogFetcherType = 'githubReleases' | 'githubChangelogFile';
+export type ChangelogFetcherType =
+  | 'githubReleases'
+  | 'githubChangelogFile'
+  | 'githubWiki';
 
 export interface ChangelogFetcherOptions
   extends Pick<FetchOptions, 'tagPrefix' | 'tagSuffix' | 'changelogFilename'> {

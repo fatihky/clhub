@@ -15,6 +15,12 @@ export const npmPackages = packageMapToArray(pm, {
       tagPrefix: '@formatjs/intl-localematcher@',
     },
   },
+  '@inquirer/prompts': {
+    repositoryUrl: 'https://github.com/SBoudrias/Inquirer.js',
+    changelogFetcherOptions: {
+      tagPrefix: '@inquirer/prompts@',
+    },
+  },
   '@standard-schema/spec': {
     repositoryUrl: 'https://github.com/standard-schema/standard-schema',
     changelogFetcherOptions: { tagPrefix: 'v' },
@@ -27,14 +33,36 @@ export const npmPackages = packageMapToArray(pm, {
     repositoryUrl: 'https://github.com/motdotla/dotenv',
     changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
+  'echarts-for-react': {
+    repositoryUrl: 'https://github.com/hustcc/echarts-for-react',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: { tagPrefix: 'v' },
+  },
   express: {
     repositoryUrl: 'https://github.com/expressjs/express',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: { tagPrefix: 'v' },
+  },
+  'fast-deep-equal': {
+    repositoryUrl: 'https://github.com/epoberezkin/fast-deep-equal',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
     changelogFetcherOptions: { tagPrefix: 'v' },
   },
   i18next: {
     repositoryUrl: 'https://github.com/i18next/i18next',
     changelogFetcherOptions: { tagPrefix: 'v' },
+  },
+  inquirer: {
+    repositoryUrl: 'https://github.com/SBoudrias/Inquirer.js',
+    changelogFetcherOptions: { tagPrefix: 'inquirer@' },
+  },
+  lodash: {
+    repositoryUrl: 'https://github.com/lodash/lodash',
+    changelogFetcherOptions: {
+      type: 'githubWiki',
+      changelogFilename: 'Changelog', // optional, defaults to 'Changelog'
+      tagPrefix: 'v', // optional, for version matching
+    },
   },
   'lucide-react': {
     repositoryUrl: 'https://github.com/lucide-icons/lucide',
@@ -95,6 +123,11 @@ export const npmPackages = packageMapToArray(pm, {
     repositoryUrl: 'https://github.com/npm/node-semver',
     changelogFetcherOptions: { tagPrefix: 'v' },
   },
+  'size-sensor': {
+    repositoryUrl: 'https://github.com/hustcc/size-sensor',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: { tagPrefix: 'v' },
+  },
   superstruct: {
     repositoryUrl: 'https://github.com/ianstormtaylor/superstruct',
     changelogFetcherOptions: { tagPrefix: 'v' },
@@ -124,8 +157,10 @@ export const npmPackages = packageMapToArray(pm, {
   },
   vite: {
     repositoryUrl: 'https://github.com/vitejs/vite',
-    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'packages/vite/CHANGELOG.md',
+    },
   },
   'whatsapp-web.js': {
     repositoryUrl: 'https://github.com/pedroslopez/whatsapp-web.js',
