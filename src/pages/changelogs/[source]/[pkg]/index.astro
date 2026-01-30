@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
-import { extractVersionFromPath, sortChangelogEntriesByVersion } from "../../../../changelog/utils";
+import { extractVersionFromPath, sortChangelogEntriesByVersion, getChangelogSize } from "../../../../changelog/utils";
 import { getPackageLinks } from "../../../../changelog/packages";
 
 const sourceLabels: Record<string, string> = {
@@ -89,6 +89,7 @@ const packageLinks = source && pkg ? await getPackageLinks(source, pkg) : undefi
     {
       versions.map((entry) => {
         const version = extractVersionFromPath(entry.filePath ?? entry.id);
+        const size = getChangelogSize(entry.filePath);
 
         return (
           <a
@@ -97,6 +98,7 @@ const packageLinks = source && pkg ? await getPackageLinks(source, pkg) : undefi
             data-version={version}
           >
             <span class="version">{version}</span>
+            {size && <span class="size">{size}</span>}
           </a>
         );
       })
@@ -194,7 +196,8 @@ const packageLinks = source && pkg ? await getPackageLinks(source, pkg) : undefi
     gap: 0;
   }
   .version-item {
-    display: block;
+    display: flex;
+    align-items: center;
     padding: 0.5rem 0;
     text-decoration: none;
     font-family: var(--sl-font-mono);
@@ -209,6 +212,11 @@ const packageLinks = source && pkg ? await getPackageLinks(source, pkg) : undefi
   }
   .version {
     color: var(--sl-color-white);
+  }
+  .size {
+    color: var(--sl-color-gray-3);
+    font-size: 0.75rem;
+    margin-left: auto;
   }
   .version-item.hidden {
     display: none;

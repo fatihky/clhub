@@ -1,3 +1,4 @@
+import { statSync } from 'node:fs';
 import { gt, lte, valid } from 'semver';
 import { compareVersionsDescending } from './version-fetchers/version-comparator';
 
@@ -82,4 +83,45 @@ export function getVersionsInRange<T extends ChangelogEntry>(
     // String fallback: from < v <= to
     return v > from && v <= to;
   });
+}
+
+/**
+ * Gets the file size in bytes for a given file path.
+ * Returns 0 if the file doesn't exist or can't be read.
+ */
+export function getFileSizeBytes(filePath: string): number {
+  try {
+    const stats = statSync(filePath);
+    return stats.size;
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * Formats a file size in bytes to a human-readable string.
+ * Uses bytes for sizes < 1KB, KB for sizes >= 1KB.
+ *
+ * @example
+ * formatFileSize(500) // '500 B'
+ * formatFileSize(1024) // '1.0 KB'
+ * formatFileSize(2560) // '2.5 KB'
+ * formatFileSize(10240) // '10.0 KB'
+ */
+export function formatFileSize(bytes: number): string {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+  const kb = bytes / 1024;
+  return `${kb.toFixed(1)} KB`;
+}
+
+/**
+ * Gets the formatted file size for a changelog entry.
+ * Combines getFileSizeBytes and formatFileSize.
+ */
+export function getChangelogSize(filePath: string | undefined): string {
+  if (!filePath) return '';
+  const bytes = getFileSizeBytes(filePath);
+  return formatFileSize(bytes);
 }

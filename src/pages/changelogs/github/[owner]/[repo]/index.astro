@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
-import { extractVersionFromEntry, sortChangelogEntriesByVersion } from "../../../../../changelog/utils";
+import { extractVersionFromEntry, sortChangelogEntriesByVersion, getChangelogSize } from "../../../../../changelog/utils";
 
 export async function getStaticPaths() {
   const changelogs = await getCollection("changelogs", ({ id }) =>
@@ -84,6 +84,7 @@ const repoUrl = `https://github.com/${owner}/${repo}`;
     {
       versions.map((entry) => {
         const version = extractVersionFromEntry(entry);
+        const size = getChangelogSize(entry.filePath);
         return (
           <a
             href={`/changelogs/github/${owner}/${repo}/${version}/`}
@@ -91,6 +92,7 @@ const repoUrl = `https://github.com/${owner}/${repo}`;
             data-version={version}
           >
             <span class="version">{version}</span>
+            {size && <span class="size">{size}</span>}
           </a>
         );
       })
@@ -188,7 +190,8 @@ const repoUrl = `https://github.com/${owner}/${repo}`;
     gap: 0;
   }
   .version-item {
-    display: block;
+    display: flex;
+    align-items: center;
     padding: 0.5rem 0;
     text-decoration: none;
     font-family: var(--sl-font-mono);
@@ -203,6 +206,11 @@ const repoUrl = `https://github.com/${owner}/${repo}`;
   }
   .version {
     color: var(--sl-color-white);
+  }
+  .size {
+    color: var(--sl-color-gray-3);
+    font-size: 0.75rem;
+    margin-left: auto;
   }
   .version-item.hidden {
     display: none;
