@@ -54,7 +54,9 @@ const sourceLabel = sourceLabels[source!] || source;
   <p class="breadcrumb">
     <a href={route(`/changelogs/${source}/`)} class="badge">{sourceLabel}</a>
     <span class="separator">/</span>
-    <a href={route(`/changelogs/${source}/${pkg}/`)} class="package-name">{pkg}</a>
+    <a href={route(`/changelogs/${source}/${pkg}/`)} class="package-name"
+      >{pkg}</a
+    >
     <span class="separator">/</span>
     <span class="version">{version}</span>
     {entry.body && <CopyButton content={entry.body} />}
