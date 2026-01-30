@@ -3,6 +3,7 @@ import { getCollection } from "astro:content";
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import { extractVersionFromPath, getChangelogSize } from "../../../../../changelog/utils";
 import { getPackageLinks } from "../../../../../changelog/packages";
+import { route } from "../../../../../utils/route";
 
 const sourceLabels: Record<string, string> = {
   crates: "Crates.io",
@@ -66,7 +67,7 @@ const packageLinks = source ? await getPackageLinks(source, fullPkg) : undefined
   }}
 >
   <p class="source-info">
-    <a href={`/changelogs/${source}/`} class="badge">{sourceLabel}</a>
+    <a href={route(`/changelogs/${source}/`)} class="badge">{sourceLabel}</a>
     <span class="separator">/</span>
     <span class="package-name">{fullPkg}</span>
   </p>
@@ -89,7 +90,7 @@ const packageLinks = source ? await getPackageLinks(source, fullPkg) : undefined
     <span class="version-count">
       <span id="visible-count">{versions.length}</span> of {versions.length} versions
     </span>
-    <a href={`/changelogs/${source}/@${org}/${pkg}/compare`} class="compare-link">
+    <a href={route(`/changelogs/${source}/@${org}/${pkg}/compare`)} class="compare-link">
       Compare Versions
     </a>
   </div>
@@ -102,7 +103,7 @@ const packageLinks = source ? await getPackageLinks(source, fullPkg) : undefined
 
         return (
           <a
-            href={`/changelogs/${source}/@${org}/${pkg}/${version}/`}
+            href={route(`/changelogs/${source}/@${org}/${pkg}/${version}/`)}
             class="version-item"
             data-version={version}
           >

@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { route } from '../../utils/route';
 
 const changelogs = await getCollection('changelogs');
 
@@ -64,7 +65,7 @@ const sources = sourceOrder.filter((s) => sourceCounts.has(s));
 		{sources.map((source) => {
 			const count = sourceCounts.get(source)!.size;
 			return (
-				<a href={`/changelogs/${source}/`} class="source-card">
+				<a href={route(`/changelogs/${source}/`)} class="source-card">
 					<h2>{sourceLabels[source]}</h2>
 					<p class="description">{sourceDescriptions[source]}</p>
 					<p class="count">{count} packages</p>

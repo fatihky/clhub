@@ -6,6 +6,7 @@ import {
   sortChangelogEntriesByVersion,
 } from "../../../../changelog/utils";
 import { getPackageLinks } from "../../../../changelog/packages";
+import { route } from "../../../../utils/route";
 
 const sourceLabels: Record<string, string> = {
   crates: "Crates.io",
@@ -72,9 +73,9 @@ const packageLinks = source && pkg ? await getPackageLinks(source, pkg) : undefi
   }}
 >
   <p class="source-info">
-    <a href={`/changelogs/${source}/`} class="badge">{sourceLabel}</a>
+    <a href={route(`/changelogs/${source}/`)} class="badge">{sourceLabel}</a>
     <span class="separator">/</span>
-    <a href={`/changelogs/${source}/${pkg}/`} class="package-name">{pkg}</a>
+    <a href={route(`/changelogs/${source}/${pkg}/`)} class="package-name">{pkg}</a>
     <span class="separator">/</span>
     <span class="compare-label">Compare Versions</span>
   </p>
@@ -118,7 +119,7 @@ const packageLinks = source && pkg ? await getPackageLinks(source, pkg) : undefi
     {renderedEntries.map(({ version, Content }) => (
       <div class="changelog-entry" data-version={version} style="display: none;">
         <div class="changelog-header">
-          <a href={`/changelogs/${source}/${pkg}/${version}/`} class="version-link">
+          <a href={route(`/changelogs/${source}/${pkg}/${version}/`)} class="version-link">
             {version}
           </a>
         </div>

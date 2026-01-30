@@ -3,6 +3,7 @@ import { getCollection, render } from "astro:content";
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import CopyButton from "../../../../components/CopyButton.astro";
 import { extractVersionFromPath } from "../../../../changelog/utils";
+import { route } from "../../../../utils/route";
 
 const sourceLabels: Record<string, string> = {
   crates: "Crates.io",
@@ -51,9 +52,9 @@ const sourceLabel = sourceLabels[source!] || source;
   }}
 >
   <p class="breadcrumb">
-    <a href={`/changelogs/${source}/`} class="badge">{sourceLabel}</a>
+    <a href={route(`/changelogs/${source}/`)} class="badge">{sourceLabel}</a>
     <span class="separator">/</span>
-    <a href={`/changelogs/${source}/${pkg}/`} class="package-name">{pkg}</a>
+    <a href={route(`/changelogs/${source}/${pkg}/`)} class="package-name">{pkg}</a>
     <span class="separator">/</span>
     <span class="version">{version}</span>
     {entry.body && <CopyButton content={entry.body} />}
