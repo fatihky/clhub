@@ -8,7 +8,9 @@
       "Bash(npx tsc:*)",
       "Bash(npx astro check:*)",
       "Bash(tree:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
