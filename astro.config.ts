@@ -1,9 +1,16 @@
 import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
-import { cratesPackages, githubPackages, npmPackages, rubygemsPackages } from './src/changelog/packages';
+import {
+  cratesPackages,
+  githubPackages,
+  npmPackages,
+  rubygemsPackages,
+} from './src/changelog/packages';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://fatihky.github.io/',
+  base: process.env.NODE_ENV === 'production' ? '/clhub' : '',
   integrations: [
     starlight({
       title: 'Changelog Hub',
