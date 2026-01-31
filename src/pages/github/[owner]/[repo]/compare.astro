@@ -4,8 +4,8 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import {
   parseChangelogPath,
   sortChangelogEntriesByVersion,
-} from '../../../../../changelog/utils';
-import { route } from '../../../../../utils/route';
+} from '../../../../changelog/utils';
+import { route } from '../../../../utils/route';
 
 export async function getStaticPaths() {
   const changelogs = await getCollection('changelogs', ({ id }) =>
@@ -67,9 +67,9 @@ const repoUrl = `https://github.com/${owner}/${repo}`;
   }}
 >
   <p class="source-info">
-    <a href={route("/changelogs/github/")} class="badge">GitHub</a>
+    <a href={route("/github/")} class="badge">GitHub</a>
     <span class="separator">/</span>
-    <a href={route(`/changelogs/github/${owner}/${repo}/`)} class="package-name">{fullName}</a>
+    <a href={route(`/github/${owner}/${repo}/`)} class="package-name">{fullName}</a>
     <span class="separator">/</span>
     <span class="compare-label">Compare Versions</span>
   </p>
@@ -115,7 +115,7 @@ const repoUrl = `https://github.com/${owner}/${repo}`;
     {renderedEntries.map(({ version, Content }) => (
       <div class="changelog-entry" data-version={version} style="display: none;">
         <div class="changelog-header">
-          <a href={route(`/changelogs/github/${owner}/${repo}/${version}/`)} class="version-link">
+          <a href={route(`/github/${owner}/${repo}/${version}/`)} class="version-link">
             {version}
           </a>
         </div>

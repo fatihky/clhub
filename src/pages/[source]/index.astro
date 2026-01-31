@@ -4,8 +4,8 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import {
   extractVersionFromPath,
   sortChangelogEntriesByVersion,
-} from '../../../changelog/utils';
-import { route } from '../../../utils/route';
+} from '../../changelog/utils';
+import { route } from '../../utils/route';
 
 const sourceLabels: Record<string, string> = {
   crates: 'Crates.io',
@@ -94,8 +94,8 @@ const sourceLabel = source ? (sourceLabels[source] ?? source) : 'Unknown';
       sortedPackages.map(([packageName, versions]) => {
         const packagePath = route(
           source === "github"
-            ? `/changelogs/github/${packageName}/`
-            : `/changelogs/${source}/${packageName}/`
+            ? `/github/${packageName}/`
+            : `/${source}/${packageName}/`
         );
         const latestVersion = extractVersionFromPath(
           versions[0].filePath ?? "",

@@ -35,7 +35,7 @@ const packageManagers = Object.keys(PACKAGE_MANAGERS) as PackageManagerKey[];
 
 	<div class="sources-grid">
 		{packageManagers.map((source) => (
-			<a href={route(`/changelogs/${source}/`)} class="source-card">
+			<a href={route(`/${source}/`)} class="source-card">
 				<h2>{sourceLabels[source]}</h2>
 				<p class="description">{sourceDescriptions[source]}</p>
 			</a>

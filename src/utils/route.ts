@@ -7,7 +7,7 @@ const BASE_PATH = '/clhub';
  * @example
  * // In production (NODE_ENV === 'production')
  * route('/about') // '/clhub/about'
- * route('/changelogs/npm/react') // '/clhub/changelogs/npm/react'
+ * route('/npm/react') // '/clhub/npm/react'
  *
  * // In development
  * route('/about') // '/about'

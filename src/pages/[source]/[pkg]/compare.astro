@@ -1,0 +1,393 @@
+---
+import { getCollection, render } from 'astro:content';
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import {
+  parseChangelogPath,
+  sortChangelogEntriesByVersion,
+} from '../../../changelog/utils';
+import { getPackageLinks } from '../../../changelog/packages';
+import { route } from '../../../utils/route';
+
+const sourceLabels: Record<string, string> = {
+  crates: 'Crates.io',
+  npm: 'npm',
+  pypi: 'PyPI',
+  rubygems: 'RubyGems',
+};
+
+export async function getStaticPaths() {
+  const changelogs = await getCollection('changelogs');
+  const packages = new Map<string, { source: string; pkg: string }>();
+
+  for (const entry of changelogs) {
+    const filePath = entry.filePath || '';
+    const parsed = parseChangelogPath(filePath || entry.id);
+
+    // Skip github - handled by separate route
+    if (parsed.source === 'github') continue;
+
+    // Skip scoped packages - handled by separate route (use filePath since ID strips @)
+    if (filePath.match(/changelogs\/\w+\/@[^/]+\//)) continue;
+
+    const key = `${parsed.source}/${parsed.pkg}`;
+    if (!packages.has(key)) {
+      packages.set(key, { source: parsed.source, pkg: parsed.pkg });
+    }
+  }
+
+  return [...packages.values()].map(({ source, pkg }) => ({
+    params: { source, pkg },
+  }));
+}
+
+const { source, pkg } = Astro.params;
+const changelogs = await getCollection('changelogs', (entry) => {
+  const parsed = parseChangelogPath(entry.filePath ?? entry.id);
+  return parsed.source === source && parsed.pkg === pkg;
+});
+
+// Sort versions (newest first)
+const allVersions = sortChangelogEntriesByVersion(changelogs);
+const versionList = allVersions.map(
+  (e) => parseChangelogPath(e.filePath ?? e.id).version,
+);
+
+// Pre-render all entries for client-side filtering
+const renderedEntries = await Promise.all(
+  allVersions.map(async (entry) => {
+    const { Content } = await render(entry);
+    return {
+      version: parseChangelogPath(entry.filePath ?? entry.id).version,
+      Content,
+    };
+  }),
+);
+
+const sourceLabel = source ? (sourceLabels[source] ?? source) : 'Unknown';
+const packageLinks =
+  source && pkg ? await getPackageLinks(source, pkg) : undefined;
+---
+
+<StarlightPage
+  frontmatter={{
+    title: `Compare Versions - ${pkg}`,
+    description: `Compare changelog versions for ${pkg} from ${sourceLabel}`,
+  }}
+>
+  <p class="source-info">
+    <a href={route(`/${source}/`)} class="badge">{sourceLabel}</a>
+    <span class="separator">/</span>
+    <a href={route(`/${source}/${pkg}/`)} class="package-name">{pkg}</a>
+    <span class="separator">/</span>
+    <span class="compare-label">Compare Versions</span>
+  </p>
+
+  {packageLinks && (
+    <p class="package-links">
+      <a href={packageLinks.homepage} target="_blank" rel="noopener noreferrer" class="link">
+        View on {sourceLabel}
+      </a>
+    </p>
+  )}
+
+  <div class="compare-form">
+    <div class="version-selectors">
+      <label class="version-selector">
+        <span class="label">From:</span>
+        <select id="from-version" class="version-select">
+          <option value="">Select version</option>
+          {versionList.map((v) => (
+            <option value={v}>{v}</option>
+          ))}
+        </select>
+      </label>
+      <span class="arrow">→</span>
+      <label class="version-selector">
+        <span class="label">To:</span>
+        <select id="to-version" class="version-select">
+          <option value="">Select version</option>
+          {versionList.map((v) => (
+            <option value={v}>{v}</option>
+          ))}
+        </select>
+      </label>
+      <button id="compare-btn" class="compare-button">Compare</button>
+    </div>
+  </div>
+
+  <p id="version-summary" class="version-summary" style="display: none;"></p>
+
+  <div id="changelog-list" class="changelog-list">
+    {renderedEntries.map(({ version, Content }) => (
+      <div class="changelog-entry" data-version={version} style="display: none;">
+        <div class="changelog-header">
+          <a href={route(`/${source}/${pkg}/${version}/`)} class="version-link">
+            {version}
+          </a>
+        </div>
+        <div class="changelog-content">
+          <Content />
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <p id="no-results" class="no-results" style="display: none;"></p>
+</StarlightPage>
+
+<style>
+  .source-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .badge {
+    background: var(--sl-color-accent);
+    color: var(--sl-color-black);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .badge:hover {
+    opacity: 0.9;
+  }
+  .separator {
+    color: var(--sl-color-gray-3);
+  }
+  .package-name {
+    font-family: var(--sl-font-mono);
+    color: var(--sl-color-text);
+    text-decoration: none;
+  }
+  .package-name:hover {
+    color: var(--sl-color-accent);
+  }
+  .compare-label {
+    color: var(--sl-color-gray-2);
+  }
+  .package-links {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  .package-links .link {
+    color: var(--sl-color-text-accent);
+    text-decoration: none;
+  }
+  .package-links .link:hover {
+    text-decoration: underline;
+  }
+  .compare-form {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--sl-color-gray-6);
+    border-radius: 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+  }
+  .version-selectors {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .version-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .version-selector .label {
+    color: var(--sl-color-gray-2);
+    font-size: 0.875rem;
+  }
+  .version-select {
+    padding: 0.5rem 0.75rem;
+    background: var(--sl-color-gray-5);
+    border: 1px solid var(--sl-color-gray-4);
+    border-radius: 0.25rem;
+    color: var(--sl-color-white);
+    font-family: var(--sl-font-mono);
+    font-size: 0.875rem;
+    min-width: 150px;
+  }
+  .version-select:focus {
+    outline: none;
+    border-color: var(--sl-color-accent);
+  }
+  .arrow {
+    color: var(--sl-color-gray-3);
+    font-size: 1.25rem;
+  }
+  .compare-button {
+    padding: 0.5rem 1rem;
+    background: var(--sl-color-accent);
+    color: var(--sl-color-black);
+    border: none;
+    border-radius: 0.25rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 0.875rem;
+  }
+  .compare-button:hover {
+    opacity: 0.9;
+  }
+  .version-summary {
+    color: var(--sl-color-gray-2);
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  .version-summary code {
+    font-family: var(--sl-font-mono);
+    background: var(--sl-color-gray-6);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+  }
+  .changelog-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .changelog-entry {
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  .changelog-header {
+    background: var(--sl-color-gray-6);
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+  }
+  .version-link {
+    font-family: var(--sl-font-mono);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--sl-color-white);
+    text-decoration: none;
+  }
+  .version-link:hover {
+    color: var(--sl-color-accent);
+  }
+  .changelog-content {
+    padding: 1rem;
+  }
+  .no-results {
+    color: var(--sl-color-gray-3);
+    font-style: italic;
+  }
+</style>
+
+<script define:vars={{ versionList }}>
+  // Simple semver comparison helpers
+  function isValidSemver(v) {
+    return /^\d+\.\d+\.\d+/.test(v.replace(/^v/, ''));
+  }
+
+  function compareSemver(a, b) {
+    const parseVersion = (v) => {
+      const clean = v.replace(/^v/, '').split('-')[0];
+      return clean.split('.').map(n => parseInt(n, 10) || 0);
+    };
+    const aParts = parseVersion(a);
+    const bParts = parseVersion(b);
+    for (let i = 0; i < 3; i++) {
+      if ((aParts[i] || 0) > (bParts[i] || 0)) return 1;
+      if ((aParts[i] || 0) < (bParts[i] || 0)) return -1;
+    }
+    return 0;
+  }
+
+  function getVersionsInRange(versions, from, to) {
+    let fromV = from, toV = to;
+
+    // Auto-swap if from > to
+    if (isValidSemver(fromV) && isValidSemver(toV)) {
+      if (compareSemver(fromV, toV) > 0) {
+        [fromV, toV] = [toV, fromV];
+      }
+    } else if (fromV > toV) {
+      [fromV, toV] = [toV, fromV];
+    }
+
+    return versions.filter(v => {
+      if (isValidSemver(v) && isValidSemver(fromV) && isValidSemver(toV)) {
+        // from < v <= to
+        return compareSemver(v, fromV) > 0 && compareSemver(v, toV) <= 0;
+      }
+      return v > fromV && v <= toV;
+    });
+  }
+
+  const fromSelect = document.getElementById("from-version");
+  const toSelect = document.getElementById("to-version");
+  const compareBtn = document.getElementById("compare-btn");
+  const summaryEl = document.getElementById("version-summary");
+  const noResultsEl = document.getElementById("no-results");
+  const entries = document.querySelectorAll(".changelog-entry");
+
+  function updateDisplay() {
+    const from = fromSelect?.value || "";
+    const to = toSelect?.value || "";
+
+    // Update URL without reload
+    const url = new URL(window.location.href);
+    if (from && to) {
+      url.searchParams.set("from", from);
+      url.searchParams.set("to", to);
+    } else {
+      url.searchParams.delete("from");
+      url.searchParams.delete("to");
+    }
+    window.history.replaceState({}, "", url.toString());
+
+    if (!from || !to) {
+      entries.forEach(el => el.style.display = "none");
+      summaryEl.style.display = "none";
+      noResultsEl.style.display = "none";
+      return;
+    }
+
+    const inRange = getVersionsInRange(versionList, from, to);
+    let visibleCount = 0;
+
+    entries.forEach(el => {
+      const version = el.getAttribute("data-version");
+      if (inRange.includes(version)) {
+        el.style.display = "block";
+        visibleCount++;
+      } else {
+        el.style.display = "none";
+      }
+    });
+
+    if (visibleCount > 0) {
+      summaryEl.innerHTML = `${visibleCount} version${visibleCount !== 1 ? "s" : ""} between <code>${from}</code> and <code>${to}</code>`;
+      summaryEl.style.display = "block";
+      noResultsEl.style.display = "none";
+    } else {
+      summaryEl.style.display = "none";
+      noResultsEl.innerHTML = `No versions found between <code>${from}</code> and <code>${to}</code>.`;
+      noResultsEl.style.display = "block";
+    }
+  }
+
+  // Initialize from URL params
+  const params = new URLSearchParams(window.location.search);
+  const initialFrom = params.get("from");
+  const initialTo = params.get("to");
+
+  if (initialFrom && fromSelect) {
+    fromSelect.value = initialFrom;
+  }
+  if (initialTo && toSelect) {
+    toSelect.value = initialTo;
+  }
+
+  // Initial display update
+  updateDisplay();
+
+  compareBtn?.addEventListener("click", updateDisplay);
+</script>

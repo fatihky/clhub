@@ -6,9 +6,9 @@ import {
   sortChangelogEntriesByVersion,
   getChangelogSize,
   isPreRelease,
-} from '../../../../changelog/utils';
-import { getPackageLinks } from '../../../../changelog/packages';
-import { route } from '../../../../utils/route';
+} from '../../../changelog/utils';
+import { getPackageLinks } from '../../../changelog/packages';
+import { route } from '../../../utils/route';
 
 const sourceLabels: Record<string, string> = {
   crates: 'Crates.io',
@@ -63,7 +63,7 @@ const packageLinks =
   }}
 >
   <p class="source-info">
-    <a href={route(`/changelogs/${source}/`)} class="badge">{sourceLabel}</a>
+    <a href={route(`/${source}/`)} class="badge">{sourceLabel}</a>
     <span class="separator">/</span>
     <span class="package-name">{pkg}</span>
   </p>
@@ -90,7 +90,7 @@ const packageLinks =
     <span class="version-count">
       <span id="visible-count">{versions.length}</span> of {versions.length} versions
     </span>
-    <a href={route(`/changelogs/${source}/${pkg}/compare`)} class="compare-link">
+    <a href={route(`/${source}/${pkg}/compare`)} class="compare-link">
       Compare Versions
     </a>
   </div>
@@ -103,7 +103,7 @@ const packageLinks =
 
         return (
           <a
-            href={route(`/changelogs/${source}/${pkg}/${version}/`)}
+            href={route(`/${source}/${pkg}/${version}/`)}
             class="version-item"
             data-version={version}
             data-prerelease={isPreRelease(version) ? "true" : undefined}

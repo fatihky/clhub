@@ -6,8 +6,8 @@ import {
   sortChangelogEntriesByVersion,
   getChangelogSize,
   isPreRelease,
-} from '../../../../../changelog/utils';
-import { route } from '../../../../../utils/route';
+} from '../../../../changelog/utils';
+import { route } from '../../../../utils/route';
 
 export async function getStaticPaths() {
   const changelogs = await getCollection('changelogs', ({ id }) =>
@@ -55,7 +55,7 @@ const repoUrl = `https://github.com/${owner}/${repo}`;
   }}
 >
   <p class="source-info">
-    <a href={route("/changelogs/github/")} class="badge">GitHub</a>
+    <a href={route("/github/")} class="badge">GitHub</a>
     <span class="separator">/</span>
     <span class="package-name">{fullName}</span>
   </p>
@@ -84,7 +84,7 @@ const repoUrl = `https://github.com/${owner}/${repo}`;
     <span class="version-count">
       <span id="visible-count">{versions.length}</span> of {versions.length} releases
     </span>
-    <a href={route(`/changelogs/github/${owner}/${repo}/compare`)} class="compare-link">
+    <a href={route(`/github/${owner}/${repo}/compare`)} class="compare-link">
       Compare Versions
     </a>
   </div>
@@ -96,7 +96,7 @@ const repoUrl = `https://github.com/${owner}/${repo}`;
         const size = getChangelogSize(entry.filePath);
         return (
           <a
-            href={route(`/changelogs/github/${owner}/${repo}/${version}/`)}
+            href={route(`/github/${owner}/${repo}/${version}/`)}
             class="version-item"
             data-version={version}
             data-prerelease={isPreRelease(version) ? "true" : undefined}

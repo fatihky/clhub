@@ -30,11 +30,11 @@ export default defineConfig({
           label: 'Package Sources',
           collapsed: false,
           items: [
-            { label: 'Crates.io', link: '/changelogs/crates/' },
-            { label: 'GitHub', link: '/changelogs/github/' },
-            { label: 'npm', link: '/changelogs/npm/' },
-            { label: 'PyPI', link: '/changelogs/pypi/' },
-            { label: 'RubyGems', link: '/changelogs/rubygems/' },
+            { label: 'Crates.io', link: '/crates/' },
+            { label: 'GitHub', link: '/github/' },
+            { label: 'npm', link: '/npm/' },
+            { label: 'PyPI', link: '/pypi/' },
+            { label: 'RubyGems', link: '/rubygems/' },
           ],
         },
         {
@@ -42,7 +42,7 @@ export default defineConfig({
           collapsed: true,
           items: cratesPackages.map((pkg) => ({
             label: pkg.name,
-            link: `/changelogs/crates/${pkg.name}`,
+            link: `/crates/${pkg.name}`,
           })),
         },
         {
@@ -50,7 +50,7 @@ export default defineConfig({
           collapsed: true,
           items: githubPackages.map((pkg) => ({
             label: pkg.name,
-            link: `/changelogs/github/${pkg.name}`,
+            link: `/github/${pkg.name}`,
           })),
         },
         {
@@ -58,7 +58,7 @@ export default defineConfig({
           collapsed: true,
           items: npmPackages.map((pkg) => ({
             label: pkg.name,
-            link: `/changelogs/npm/${pkg.name}`,
+            link: `/npm/${pkg.name}`,
           })),
         },
         {
@@ -66,7 +66,7 @@ export default defineConfig({
           collapsed: true,
           items: rubygemsPackages.map((pkg) => ({
             label: pkg.name,
-            link: `/changelogs/rubygems/${pkg.name}`,
+            link: `/rubygems/${pkg.name}`,
           })),
         },
       ],

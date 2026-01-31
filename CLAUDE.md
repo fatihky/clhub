@@ -41,7 +41,8 @@ The codebase uses abstract base classes with concrete implementations:
 ### Key Directories
 
 - `src/changelog/packages/`: Package configurations per registry (npm.ts, pypi.ts, etc.)
-- `src/pages/changelogs/`: Dynamic Astro routes for changelog display
+- `src/pages/[source]/`: Dynamic Astro routes for changelog display
+- `src/pages/github/`: GitHub-specific routes for repository changelogs
 - `src/tools/`: CLI tools for changelog management
 - `changelogs/`: Generated markdown files organized as `{source}/{package}/{version}.md`
 
@@ -66,9 +67,9 @@ The site deploys to a GitHub Pages subpath (`/clhub`). Use the `route()` utility
 
 ### Dynamic Routing
 
-- Regular packages: `/changelogs/[source]/[pkg]/`
-- Scoped packages: `/changelogs/[source]/@[org]/[pkg]/`
-- GitHub repos: `/changelogs/github/[owner]/[repo]/`
+- Regular packages: `/[source]/[pkg]/`
+- Scoped packages: `/[source]/@[org]/[pkg]/`
+- GitHub repos: `/github/[owner]/[repo]/`
 
 ### Content Collection
 

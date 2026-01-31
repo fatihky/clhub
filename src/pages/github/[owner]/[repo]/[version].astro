@@ -1,9 +1,9 @@
 ---
 import { getCollection, render } from 'astro:content';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import CopyButton from '../../../../../components/CopyButton.astro';
-import { parseChangelogPath } from '../../../../../changelog/utils';
-import { route } from '../../../../../utils/route';
+import CopyButton from '../../../../components/CopyButton.astro';
+import { parseChangelogPath } from '../../../../changelog/utils';
+import { route } from '../../../../utils/route';
 
 export async function getStaticPaths() {
   const changelogs = await getCollection('changelogs', ({ id }) =>
@@ -40,9 +40,9 @@ const fullName = `${owner}/${repo}`;
 	}}
 >
 	<p class="breadcrumb">
-		<a href={route("/changelogs/github/")} class="badge">GitHub</a>
+		<a href={route("/github/")} class="badge">GitHub</a>
 		<span class="separator">/</span>
-		<a href={route(`/changelogs/github/${owner}/${repo}/`)} class="package-name">{fullName}</a>
+		<a href={route(`/github/${owner}/${repo}/`)} class="package-name">{fullName}</a>
 		<span class="separator">/</span>
 		<span class="version">{version}</span>
 		{entry.body && <CopyButton content={entry.body} />}
