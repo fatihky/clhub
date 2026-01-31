@@ -7,6 +7,7 @@ import { getChangelogFetcher } from '../changelog/fetchers';
 import { createLogger, type Logger } from '../changelog/logger';
 import { PACKAGE_MANAGERS, Package } from '../changelog/package';
 import { allPackages } from '../changelog/packages';
+import { buildChangelogPath } from '../changelog/utils';
 
 const program = new Command();
 
@@ -142,7 +143,12 @@ const fetchCommand = new Command('fetch')
     console.log(changelog.text);
 
     if (save) {
-      const filePath = path.join('changelogs', dir, pkg.name, `${version}.md`);
+      const filePath = buildChangelogPath(
+        dir,
+        pkg.name,
+        version,
+        pkg.groupByMajorVersion ?? false,
+      );
       const fileDir = path.dirname(filePath);
 
       fs.mkdirSync(fileDir, { recursive: true });
@@ -323,6 +329,7 @@ const fetchAllCommand = new Command('fetch-all')
       repositoryUrl,
       found?.versionFetcherOptions,
       found?.changelogFetcherOptions,
+      found?.groupByMajorVersion,
     );
 
     // Fetch versions from registry
@@ -384,11 +391,11 @@ const fetchAllCommand = new Command('fetch-all')
       const versionInfo = versions[i];
       const version = versionInfo.version;
 
-      const filePath = path.join(
-        'changelogs',
+      const filePath = buildChangelogPath(
         dir,
         packageName,
-        `${version}.md`,
+        version,
+        pkg.groupByMajorVersion ?? false,
       );
 
       // Skip if file already exists
@@ -521,12 +528,7 @@ async function fetchAllVersionsForPackage(
   const fetcher = getChangelogFetcher(pkg.changelogFetcherOptions?.type);
 
   const dir = pm.dirname;
-  const notFoundPath = path.join(
-    'changelogs',
-    dir,
-    pkg.name,
-    '_not_found.md',
-  );
+  const notFoundPath = path.join('changelogs', dir, pkg.name, '_not_found.md');
 
   // Load existing not-found versions
   const notFoundVersions = new Set<string>();
@@ -548,11 +550,11 @@ async function fetchAllVersionsForPackage(
     const versionInfo = versions[i];
     const version = versionInfo.version;
 
-    const filePath = path.join(
-      'changelogs',
+    const filePath = buildChangelogPath(
       dir,
       pkg.name,
-      `${version}.md`,
+      version,
+      pkg.groupByMajorVersion ?? false,
     );
 
     // Skip if file already exists

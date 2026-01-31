@@ -2,29 +2,28 @@
 import { getCollection, render } from 'astro:content';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import CopyButton from '../../../../../components/CopyButton.astro';
-import { extractVersionFromEntry } from '../../../../../changelog/utils';
+import { parseChangelogPath } from '../../../../../changelog/utils';
 import { route } from '../../../../../utils/route';
 
 export async function getStaticPaths() {
-	const changelogs = await getCollection('changelogs', ({ id }) => id.startsWith('github/'));
+  const changelogs = await getCollection('changelogs', ({ id }) =>
+    id.startsWith('github/'),
+  );
 
-	return changelogs.map((entry) => {
-		// Use filePath to get original casing from filesystem
-		const filePath = entry.filePath || entry.id;
-		const match = filePath.match(/changelogs\/github\/([^/]+)\/([^/]+)\//i)
-			|| entry.id.match(/github\/([^/]+)\/([^/]+)\//i);
-		const owner = match ? match[1] : entry.id.split('/')[1];
-		const repo = match ? match[2] : entry.id.split('/')[2];
+  return changelogs.map((entry) => {
+    const parsed = parseChangelogPath(entry.filePath ?? entry.id);
+    // pkg is "owner/repo" for GitHub
+    const [owner, repo] = parsed.pkg.split('/');
 
-		return {
-			params: {
-				owner,
-				repo,
-				version: extractVersionFromEntry(entry),
-			},
-			props: { entry },
-		};
-	});
+    return {
+      params: {
+        owner,
+        repo,
+        version: parsed.version,
+      },
+      props: { entry },
+    };
+  });
 }
 
 const { owner, repo, version } = Astro.params;

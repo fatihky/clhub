@@ -1,36 +1,39 @@
 ---
-import { getCollection } from "astro:content";
-import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
-import { extractVersionFromPath, sortChangelogEntriesByVersion, getChangelogSize, isPreRelease } from "../../../../changelog/utils";
-import { getPackageLinks } from "../../../../changelog/packages";
-import { route } from "../../../../utils/route";
+import { getCollection } from 'astro:content';
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import {
+  parseChangelogPath,
+  sortChangelogEntriesByVersion,
+  getChangelogSize,
+  isPreRelease,
+} from '../../../../changelog/utils';
+import { getPackageLinks } from '../../../../changelog/packages';
+import { route } from '../../../../utils/route';
 
 const sourceLabels: Record<string, string> = {
-  crates: "Crates.io",
-  npm: "npm",
-  pypi: "PyPI",
-  rubygems: "RubyGems",
+  crates: 'Crates.io',
+  npm: 'npm',
+  pypi: 'PyPI',
+  rubygems: 'RubyGems',
 };
 
 export async function getStaticPaths() {
-  const changelogs = await getCollection("changelogs");
+  const changelogs = await getCollection('changelogs');
   const packages = new Map<string, { source: string; pkg: string }>();
 
   for (const entry of changelogs) {
-    const filePath = entry.filePath || "";
-    const parts = entry.id.split("/");
-    const source = parts[0];
+    const filePath = entry.filePath || '';
+    const parsed = parseChangelogPath(filePath || entry.id);
 
     // Skip github - handled by separate route
-    if (source === "github") continue;
+    if (parsed.source === 'github') continue;
 
     // Skip scoped packages - handled by separate route (use filePath since ID strips @)
     if (filePath.match(/changelogs\/\w+\/@[^/]+\//)) continue;
 
-    const pkg = parts[1];
-    const key = `${source}/${pkg}`;
+    const key = `${parsed.source}/${parsed.pkg}`;
     if (!packages.has(key)) {
-      packages.set(key, { source, pkg });
+      packages.set(key, { source: parsed.source, pkg: parsed.pkg });
     }
   }
 
@@ -40,15 +43,17 @@ export async function getStaticPaths() {
 }
 
 const { source, pkg } = Astro.params;
-const changelogs = await getCollection("changelogs", ({ id }) =>
-  id.startsWith(`${source}/${pkg}/`),
-);
+const changelogs = await getCollection('changelogs', (entry) => {
+  const parsed = parseChangelogPath(entry.filePath ?? entry.id);
+  return parsed.source === source && parsed.pkg === pkg;
+});
 
 // Sort versions (newest first)
 const versions = sortChangelogEntriesByVersion(changelogs);
 
-const sourceLabel = source ? sourceLabels[source] ?? source : "Unknown";
-const packageLinks = source && pkg ? await getPackageLinks(source, pkg) : undefined;
+const sourceLabel = source ? (sourceLabels[source] ?? source) : 'Unknown';
+const packageLinks =
+  source && pkg ? await getPackageLinks(source, pkg) : undefined;
 ---
 
 <StarlightPage
@@ -93,7 +98,7 @@ const packageLinks = source && pkg ? await getPackageLinks(source, pkg) : undefi
   <div class="versions-list" id="versions-list">
     {
       versions.map((entry) => {
-        const version = extractVersionFromPath(entry.filePath ?? entry.id);
+        const version = parseChangelogPath(entry.filePath ?? entry.id).version;
         const size = getChangelogSize(entry.filePath);
 
         return (

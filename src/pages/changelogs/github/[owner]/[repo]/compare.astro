@@ -1,27 +1,23 @@
 ---
-import { getCollection, render } from "astro:content";
-import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { getCollection, render } from 'astro:content';
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import {
-  extractVersionFromEntry,
+  parseChangelogPath,
   sortChangelogEntriesByVersion,
-} from "../../../../../changelog/utils";
-import { route } from "../../../../../utils/route";
+} from '../../../../../changelog/utils';
+import { route } from '../../../../../utils/route';
 
 export async function getStaticPaths() {
-  const changelogs = await getCollection("changelogs", ({ id }) =>
-    id.startsWith("github/"),
+  const changelogs = await getCollection('changelogs', ({ id }) =>
+    id.startsWith('github/'),
   );
   const repos = new Map<string, { owner: string; repo: string }>();
 
   for (const entry of changelogs) {
-    // Use filePath to get original casing from filesystem
-    const filePath = entry.filePath || entry.id;
-    // Extract the github/owner/repo part from the path
-    const match = filePath.match(/changelogs\/github\/([^/]+)\/([^/]+)\//i)
-      || entry.id.match(/github\/([^/]+)\/([^/]+)\//i);
-    if (match) {
-      const owner = match[1];
-      const repo = match[2];
+    const parsed = parseChangelogPath(entry.filePath ?? entry.id);
+    // pkg is "owner/repo" for GitHub
+    const [owner, repo] = parsed.pkg.split('/');
+    if (owner && repo) {
       const key = `${owner.toLowerCase()}/${repo.toLowerCase()}`;
       if (!repos.has(key)) {
         repos.set(key, { owner, repo });
@@ -35,27 +31,32 @@ export async function getStaticPaths() {
 }
 
 const { owner, repo } = Astro.params;
-const prefix = `github/${owner}/${repo}/`.toLowerCase();
-const changelogs = await getCollection("changelogs", ({ id }) =>
-  id.toLowerCase().startsWith(prefix),
-);
+const fullName = `${owner}/${repo}`;
+const changelogs = await getCollection('changelogs', (entry) => {
+  const parsed = parseChangelogPath(entry.filePath ?? entry.id);
+  return (
+    parsed.source === 'github' &&
+    parsed.pkg.toLowerCase() === fullName.toLowerCase()
+  );
+});
 
 // Sort versions (newest first)
 const allVersions = sortChangelogEntriesByVersion(changelogs);
-const versionList = allVersions.map((e) => extractVersionFromEntry(e));
+const versionList = allVersions.map(
+  (e) => parseChangelogPath(e.filePath ?? e.id).version,
+);
 
 // Pre-render all entries for client-side filtering
 const renderedEntries = await Promise.all(
   allVersions.map(async (entry) => {
     const { Content } = await render(entry);
     return {
-      version: extractVersionFromEntry(entry),
+      version: parseChangelogPath(entry.filePath ?? entry.id).version,
       Content,
     };
   }),
 );
 
-const fullName = `${owner}/${repo}`;
 const repoUrl = `https://github.com/${owner}/${repo}`;
 ---
 

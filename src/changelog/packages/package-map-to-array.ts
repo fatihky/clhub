@@ -8,6 +8,8 @@ export type PackageMap = Record<
     readonly repositoryUrl: string;
     readonly versionFetcherOptions?: VersionFetcherOptions;
     readonly changelogFetcherOptions?: ChangelogFetcherOptions;
+    /** Store changelogs in major version subdirectories */
+    readonly groupByMajorVersion?: boolean;
   }
 >;
 
@@ -27,6 +29,7 @@ export function packageMapToArray(
         conf.repositoryUrl,
         conf.versionFetcherOptions,
         conf.changelogFetcherOptions,
+        conf.groupByMajorVersion,
       );
     })
     .filter((pkg) => pkg !== null);

@@ -1,40 +1,42 @@
 ---
-import { getCollection, render } from "astro:content";
-import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
-import CopyButton from "../../../../../components/CopyButton.astro";
-import { extractVersionFromPath } from "../../../../../changelog/utils";
-import { route } from "../../../../../utils/route";
+import { getCollection, render } from 'astro:content';
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import CopyButton from '../../../../../components/CopyButton.astro';
+import { parseChangelogPath } from '../../../../../changelog/utils';
+import { route } from '../../../../../utils/route';
 
 const sourceLabels: Record<string, string> = {
-  crates: "Crates.io",
-  npm: "npm",
-  pypi: "PyPI",
-  rubygems: "RubyGems",
+  crates: 'Crates.io',
+  npm: 'npm',
+  pypi: 'PyPI',
+  rubygems: 'RubyGems',
 };
 
 export async function getStaticPaths() {
-  const changelogs = await getCollection("changelogs");
+  const changelogs = await getCollection('changelogs');
 
   return changelogs
     .filter((entry) => {
       // Use filePath to detect scoped packages (ID strips @ symbol)
-      const filePath = entry.filePath || "";
+      const filePath = entry.filePath || '';
       // Skip github - handled by separate route
-      if (filePath.includes("/github/")) return false;
+      if (filePath.includes('/github/')) return false;
       // Only handle scoped packages
       return filePath.match(/changelogs\/\w+\/@[^/]+\/[^/]+\//);
     })
     .map((entry) => {
-      const filePath = entry.filePath || "";
-      const match = filePath.match(/changelogs\/(\w+)\/@([^/]+)\/([^/]+)\//);
-      if (!match) return null;
+      const filePath = entry.filePath || '';
+      const parsed = parseChangelogPath(filePath);
+      // Extract org from scoped package name (@org/pkg)
+      const scopedMatch = parsed.pkg.match(/^@([^/]+)\/(.+)$/);
+      if (!scopedMatch) return null;
 
       return {
         params: {
-          source: match[1],
-          org: match[2],
-          pkg: match[3],
-          version: extractVersionFromPath(filePath),
+          source: parsed.source,
+          org: scopedMatch[1],
+          pkg: scopedMatch[2],
+          version: parsed.version,
         },
         props: { entry },
       };

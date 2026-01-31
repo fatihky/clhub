@@ -148,3 +148,130 @@ export function isPreRelease(version: string): boolean {
     cleanVersion,
   );
 }
+
+/**
+ * Extracts the major version from a semver version string.
+ * Handles versions with or without 'v' prefix.
+ *
+ * @example
+ * extractMajorVersion('16.1.1') // '16'
+ * extractMajorVersion('v16.1.1') // '16'
+ * extractMajorVersion('0.1.0') // '0'
+ * extractMajorVersion('invalid') // '0'
+ */
+export function extractMajorVersion(version: string): string {
+  const cleaned = version.replace(/^v/, '');
+  const major = cleaned.split('.')[0];
+  // Return the major version, or '0' if not parseable
+  return /^\d+$/.test(major ?? '') ? major : '0';
+}
+
+/**
+ * Parsed changelog path components.
+ */
+export interface ParsedChangelogPath {
+  source: string;
+  pkg: string;
+  version: string;
+}
+
+/**
+ * Parses a changelog entry ID or file path to extract source, package, and version.
+ * Handles both regular and major-version-grouped paths.
+ *
+ * Path formats:
+ * - Regular: {source}/{pkg}/{version}.md
+ * - Grouped: {source}/{pkg}/{major}/{version}.md
+ * - Scoped: {source}/@{org}/{pkg}/{version}.md
+ * - Scoped grouped: {source}/@{org}/{pkg}/{major}/{version}.md
+ * - GitHub: github/{owner}/{repo}/{version}.md
+ * - GitHub grouped: github/{owner}/{repo}/{major}/{version}.md
+ *
+ * @example
+ * parseChangelogPath('npm/next/16.1.1') // { source: 'npm', pkg: 'next', version: '16.1.1' }
+ * parseChangelogPath('npm/next/16/16.1.1') // { source: 'npm', pkg: 'next', version: '16.1.1' }
+ */
+export function parseChangelogPath(pathOrId: string): ParsedChangelogPath {
+  // Remove 'changelogs/' prefix if present and .md extension
+  const cleaned = pathOrId.replace(/^changelogs\//, '').replace(/\.md$/, '');
+
+  const parts = cleaned.split('/');
+
+  // Handle GitHub: github/owner/repo/[major/]version
+  if (parts[0] === 'github' && parts.length >= 4) {
+    const owner = parts[1];
+    const repo = parts[2];
+    // If 5+ parts, assume major version grouping: github/owner/repo/major/version
+    const version = parts.length >= 5 ? parts[parts.length - 1] : parts[3];
+    return {
+      source: 'github',
+      pkg: `${owner}/${repo}`,
+      version,
+    };
+  }
+
+  // Handle scoped packages: source/@org/pkg/[major/]version
+  if (parts.length >= 4 && parts[1].startsWith('@')) {
+    const source = parts[0];
+    const org = parts[1].replace(/^@/, '');
+    const pkg = parts[2];
+    // If 5+ parts, assume major version grouping: source/@org/pkg/major/version
+    const version = parts.length >= 5 ? parts[parts.length - 1] : parts[3];
+    return {
+      source,
+      pkg: `@${org}/${pkg}`,
+      version,
+    };
+  }
+
+  // Handle regular packages: source/pkg/[major/]version
+  if (parts.length >= 3) {
+    const source = parts[0];
+    const pkg = parts[1];
+    // If 4+ parts, assume major version grouping: source/pkg/major/version
+    // But we need to check if parts[2] looks like a major version (numeric only)
+    if (parts.length >= 4 && /^\d+$/.test(parts[2])) {
+      return {
+        source,
+        pkg,
+        version: parts[parts.length - 1],
+      };
+    }
+    return {
+      source,
+      pkg,
+      version: parts[2],
+    };
+  }
+
+  // Fallback for malformed paths
+  return {
+    source: parts[0] ?? '',
+    pkg: parts[1] ?? '',
+    version: parts[2] ?? '',
+  };
+}
+
+/**
+ * Builds a changelog file path with optional major version grouping.
+ *
+ * @example
+ * buildChangelogPath('npm', 'next', '16.1.1', false) // 'changelogs/npm/next/16.1.1.md'
+ * buildChangelogPath('npm', 'next', '16.1.1', true) // 'changelogs/npm/next/16/16.1.1.md'
+ * buildChangelogPath('npm', '@types/node', '16.1.1', true) // 'changelogs/npm/@types/node/16/16.1.1.md'
+ */
+export function buildChangelogPath(
+  source: string,
+  pkg: string,
+  version: string,
+  groupByMajor: boolean,
+): string {
+  const basePath = `changelogs/${source}/${pkg}`;
+
+  if (groupByMajor) {
+    const major = extractMajorVersion(version);
+    return `${basePath}/${major}/${version}.md`;
+  }
+
+  return `${basePath}/${version}.md`;
+}

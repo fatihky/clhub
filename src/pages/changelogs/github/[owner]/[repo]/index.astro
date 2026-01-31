@@ -1,24 +1,25 @@
 ---
-import { getCollection } from "astro:content";
-import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
-import { extractVersionFromEntry, sortChangelogEntriesByVersion, getChangelogSize, isPreRelease } from "../../../../../changelog/utils";
-import { route } from "../../../../../utils/route";
+import { getCollection } from 'astro:content';
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import {
+  parseChangelogPath,
+  sortChangelogEntriesByVersion,
+  getChangelogSize,
+  isPreRelease,
+} from '../../../../../changelog/utils';
+import { route } from '../../../../../utils/route';
 
 export async function getStaticPaths() {
-  const changelogs = await getCollection("changelogs", ({ id }) =>
-    id.startsWith("github/"),
+  const changelogs = await getCollection('changelogs', ({ id }) =>
+    id.startsWith('github/'),
   );
   const repos = new Map<string, { owner: string; repo: string }>();
 
   for (const entry of changelogs) {
-    // Use filePath to get original casing from filesystem
-    const filePath = entry.filePath || entry.id;
-    // Extract the github/owner/repo part from the path
-    const match = filePath.match(/changelogs\/github\/([^/]+)\/([^/]+)\//i)
-      || entry.id.match(/github\/([^/]+)\/([^/]+)\//i);
-    if (match) {
-      const owner = match[1];
-      const repo = match[2];
+    const parsed = parseChangelogPath(entry.filePath ?? entry.id);
+    // pkg is "owner/repo" for GitHub
+    const [owner, repo] = parsed.pkg.split('/');
+    if (owner && repo) {
       const key = `${owner.toLowerCase()}/${repo.toLowerCase()}`;
       if (!repos.has(key)) {
         repos.set(key, { owner, repo });
@@ -32,15 +33,18 @@ export async function getStaticPaths() {
 }
 
 const { owner, repo } = Astro.params;
-const prefix = `github/${owner}/${repo}/`.toLowerCase();
-const changelogs = await getCollection("changelogs", ({ id }) =>
-  id.toLowerCase().startsWith(prefix),
-);
+const fullName = `${owner}/${repo}`;
+const changelogs = await getCollection('changelogs', (entry) => {
+  const parsed = parseChangelogPath(entry.filePath ?? entry.id);
+  return (
+    parsed.source === 'github' &&
+    parsed.pkg.toLowerCase() === fullName.toLowerCase()
+  );
+});
 
 // Sort versions (newest first)
 const versions = sortChangelogEntriesByVersion(changelogs);
 
-const fullName = `${owner}/${repo}`;
 const repoUrl = `https://github.com/${owner}/${repo}`;
 ---
 
@@ -88,7 +92,7 @@ const repoUrl = `https://github.com/${owner}/${repo}`;
   <div class="versions-list" id="versions-list">
     {
       versions.map((entry) => {
-        const version = extractVersionFromEntry(entry);
+        const version = parseChangelogPath(entry.filePath ?? entry.id).version;
         const size = getChangelogSize(entry.filePath);
         return (
           <a

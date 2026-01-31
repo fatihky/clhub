@@ -20,6 +20,8 @@ export class Package {
     readonly repositoryUrl: string,
     readonly versionFetcherOptions?: VersionFetcherOptions,
     readonly changelogFetcherOptions?: ChangelogFetcherOptions,
+    /** Store changelogs in major version subdirectories */
+    readonly groupByMajorVersion?: boolean,
   ) {}
 }
 
