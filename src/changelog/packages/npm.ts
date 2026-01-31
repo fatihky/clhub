@@ -87,6 +87,7 @@ export const npmPackages = packageMapToArray(pm, {
   next: {
     repositoryUrl: 'https://github.com/vercel/next.js',
     changelogFetcherOptions: { tagPrefix: 'v' },
+    groupByMajorVersion: true,
   },
   'next-i18next': {
     repositoryUrl: 'https://github.com/i18next/next-i18next',
