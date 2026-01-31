@@ -14,7 +14,8 @@
       "Bash(cat:*)",
       "Bash(head:*)",
       "Bash(npm run lint:*)",
-      "Bash(npm run changelog:*)"
+      "Bash(npm run changelog:*)",
+      "Bash(npm run format:*)"
     ]
   }
 }
