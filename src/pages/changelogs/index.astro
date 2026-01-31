@@ -9,44 +9,44 @@ const changelogs = await getCollection('changelogs');
 const sourceCounts = new Map<string, Set<string>>();
 
 for (const entry of changelogs) {
-	const filePath = entry.filePath || "";
-	const parts = entry.id.split('/');
-	const source = parts[0];
-	let packageName: string;
+  const filePath = entry.filePath || '';
+  const parts = entry.id.split('/');
+  const source = parts[0];
+  let packageName: string;
 
-	if (source === 'github') {
-		const match = filePath.match(/changelogs\/github\/([^/]+)\/([^/]+)\//);
-		packageName = match ? `${match[1]}/${match[2]}` : `${parts[1]}/${parts[2]}`;
-	} else {
-		// Check for scoped packages using filePath (ID strips @ symbol)
-		const scopedMatch = filePath.match(/changelogs\/\w+\/@([^/]+)\/([^/]+)\//);
-		if (scopedMatch) {
-			packageName = `@${scopedMatch[1]}/${scopedMatch[2]}`;
-		} else {
-			packageName = parts[1];
-		}
-	}
+  if (source === 'github') {
+    const match = filePath.match(/changelogs\/github\/([^/]+)\/([^/]+)\//);
+    packageName = match ? `${match[1]}/${match[2]}` : `${parts[1]}/${parts[2]}`;
+  } else {
+    // Check for scoped packages using filePath (ID strips @ symbol)
+    const scopedMatch = filePath.match(/changelogs\/\w+\/@([^/]+)\/([^/]+)\//);
+    if (scopedMatch) {
+      packageName = `@${scopedMatch[1]}/${scopedMatch[2]}`;
+    } else {
+      packageName = parts[1];
+    }
+  }
 
-	if (!sourceCounts.has(source)) {
-		sourceCounts.set(source, new Set());
-	}
-	sourceCounts.get(source)!.add(packageName);
+  if (!sourceCounts.has(source)) {
+    sourceCounts.set(source, new Set());
+  }
+  sourceCounts.get(source)!.add(packageName);
 }
 
 const sourceLabels: Record<string, string> = {
-	npm: 'npm',
-	github: 'GitHub',
-	crates: 'Crates.io',
-	pypi: 'PyPI',
-	rubygems: 'RubyGems',
+  npm: 'npm',
+  github: 'GitHub',
+  crates: 'Crates.io',
+  pypi: 'PyPI',
+  rubygems: 'RubyGems',
 };
 
 const sourceDescriptions: Record<string, string> = {
-	npm: 'JavaScript packages from the npm registry',
-	github: 'Release notes from GitHub repositories',
-	crates: 'Rust crates from crates.io',
-	pypi: 'Python packages from PyPI',
-	rubygems: 'Ruby gems from RubyGems.org',
+  npm: 'JavaScript packages from the npm registry',
+  github: 'Release notes from GitHub repositories',
+  crates: 'Rust crates from crates.io',
+  pypi: 'Python packages from PyPI',
+  rubygems: 'Ruby gems from RubyGems.org',
 };
 
 const sourceOrder = ['npm', 'github', 'crates', 'pypi', 'rubygems'];

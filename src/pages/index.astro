@@ -1,22 +1,25 @@
 ---
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import { PACKAGE_MANAGERS, type PackageManagerKey } from '../changelog/package-managers';
+import {
+  PACKAGE_MANAGERS,
+  type PackageManagerKey,
+} from '../changelog/package-managers';
 import { route } from '../utils/route';
 
 const sourceLabels: Record<PackageManagerKey, string> = {
-	npm: 'npm',
-	github: 'GitHub',
-	crates: 'Crates.io',
-	pypi: 'PyPI',
-	rubygems: 'RubyGems',
+  npm: 'npm',
+  github: 'GitHub',
+  crates: 'Crates.io',
+  pypi: 'PyPI',
+  rubygems: 'RubyGems',
 };
 
 const sourceDescriptions: Record<PackageManagerKey, string> = {
-	npm: 'JavaScript packages from the npm registry',
-	github: 'Release notes from GitHub repositories',
-	crates: 'Rust crates from crates.io',
-	pypi: 'Python packages from PyPI',
-	rubygems: 'Ruby gems from RubyGems.org',
+  npm: 'JavaScript packages from the npm registry',
+  github: 'Release notes from GitHub repositories',
+  crates: 'Rust crates from crates.io',
+  pypi: 'Python packages from PyPI',
+  rubygems: 'Ruby gems from RubyGems.org',
 };
 
 const packageManagers = Object.keys(PACKAGE_MANAGERS) as PackageManagerKey[];

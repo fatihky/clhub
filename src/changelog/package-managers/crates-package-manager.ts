@@ -30,7 +30,8 @@ export class CratesPackageManager extends PackageManager {
     const response = await fetch(url, {
       method: 'HEAD',
       headers: {
-        'User-Agent': 'changelog-fetcher (https://github.com/changelog-fetcher)',
+        'User-Agent':
+          'changelog-fetcher (https://github.com/changelog-fetcher)',
       },
     });
     return response.ok;

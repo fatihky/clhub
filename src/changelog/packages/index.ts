@@ -37,7 +37,10 @@ export interface PackageLinks {
  * Get homepage URL for a package by checking the actual package registry.
  * Returns undefined if the package does not exist on the registry.
  */
-export async function getPackageLinks(source: string, packageName: string): Promise<PackageLinks | undefined> {
+export async function getPackageLinks(
+  source: string,
+  packageName: string,
+): Promise<PackageLinks | undefined> {
   const packageManager = getPackageManager(source);
   if (!packageManager) return undefined;
 
