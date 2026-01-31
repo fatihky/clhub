@@ -1,5 +1,18 @@
-## UNRELEASED
+## [unreleased]
 
 ## v0.1.0
 
-Initial version of Changelog Hub.
+### 🚀 Features
+
+- _(changelog)_ Add mise package to github packages list
+- _(changelog)_ Add GitHub wiki fetcher and update npm package changelogs
+- Add GitHub Pages deployment and npm package changelogs
+- _(changelog)_ Display file size for changelog entries
+- _(ci)_ Add GitHub Pages deployment workflow
+- _(config)_ Update site URL and base path for deployment
+- _(routing)_ Add route utility for base path handling
+- _(packages/npm)_ Added vike-react family of packages
+
+### 🐛 Bug Fixes
+
+- Update GitHub social link to correct repository URL
