@@ -3,6 +3,8 @@
 ### 🚀 Features
 
 - Add hide pre-releases toggle with localStorage persistence
+- _(packages/npm)_ Added pm2
+- _(cli)_ Add fetch-source command to fetch all packages from a source
 
 ## [0.1.0] - 2026-01-31
 
