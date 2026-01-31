@@ -25,6 +25,7 @@ npm run changelog fetch <source> <package> <version>  # Fetch single changelog
 npm run changelog list                                 # List configured packages
 npm run changelog versions <source> <package>          # List all versions
 npm run changelog fetch-all <source> <package>         # Batch fetch all versions
+npm run changelog fetch-source -m <source>             # Fetch all packages from source
 ```
 
 ## Architecture

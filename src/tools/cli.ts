@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { Command } from '@commander-js/extra-typings';
 import { getChangelogFetcher } from '../changelog/fetchers';
-import { createLogger } from '../changelog/logger';
+import { createLogger, type Logger } from '../changelog/logger';
 import { PACKAGE_MANAGERS, Package } from '../changelog/package';
 import { allPackages } from '../changelog/packages';
 
@@ -483,9 +483,256 @@ const fetchAllCommand = new Command('fetch-all')
     console.log('\nDone!');
   });
 
+interface FetchPackageOptions {
+  save: boolean;
+  verbose: boolean;
+  limit?: number;
+  logger: Logger;
+}
+
+async function fetchAllVersionsForPackage(
+  pkg: Package,
+  options: FetchPackageOptions,
+): Promise<{ fetched: number; skipped: number; notFound: number }> {
+  const { save, verbose, limit, logger } = options;
+  const pm = pkg.packageManager;
+
+  const versionFetcherOptions = {
+    ...pkg.versionFetcherOptions,
+    verbose,
+    logger,
+  };
+
+  const maxVersions = limit;
+
+  const versions = await pm
+    .getVersions(pkg.name, versionFetcherOptions, maxVersions)
+    .catch((error: unknown) => {
+      console.error(
+        `Failed to fetch versions: ${error instanceof Error ? error.message : error}`,
+      );
+      return [];
+    });
+
+  if (versions.length === 0) {
+    return { fetched: 0, skipped: 0, notFound: 0 };
+  }
+
+  const fetcher = getChangelogFetcher(pkg.changelogFetcherOptions?.type);
+
+  const dir = pm.dirname;
+  const notFoundPath = path.join(
+    'changelogs',
+    dir,
+    pkg.name,
+    '_not_found.md',
+  );
+
+  // Load existing not-found versions
+  const notFoundVersions = new Set<string>();
+  if (fs.existsSync(notFoundPath)) {
+    const content = fs.readFileSync(notFoundPath, 'utf-8');
+    for (const line of content.split('\n')) {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith('#') && !trimmed.startsWith('<')) {
+        notFoundVersions.add(trimmed);
+      }
+    }
+  }
+
+  let skippedCount = 0;
+  let fetchedCount = 0;
+  const newNotFoundVersions: string[] = [];
+
+  for (let i = 0; i < versions.length; i++) {
+    const versionInfo = versions[i];
+    const version = versionInfo.version;
+
+    const filePath = path.join(
+      'changelogs',
+      dir,
+      pkg.name,
+      `${version}.md`,
+    );
+
+    // Skip if file already exists
+    if (fs.existsSync(filePath)) {
+      if (verbose) {
+        console.log(
+          `  [${i + 1}/${versions.length}] Skipping ${version} (already exists)`,
+        );
+      }
+      skippedCount++;
+      continue;
+    }
+
+    // Skip if already marked as not found
+    if (notFoundVersions.has(version)) {
+      if (verbose) {
+        console.log(
+          `  [${i + 1}/${versions.length}] Skipping ${version} (marked as not found)`,
+        );
+      }
+      skippedCount++;
+      continue;
+    }
+
+    console.log(`  [${i + 1}/${versions.length}] Fetching ${version}...`);
+
+    try {
+      const changelog = await fetcher.fetch(pkg, version, {
+        verbose,
+        logger,
+      });
+
+      if (!changelog) {
+        console.log(`    ⚠ No release found for ${version}`);
+        if (save) {
+          newNotFoundVersions.push(version);
+        }
+        continue;
+      }
+
+      fetchedCount++;
+
+      if (save) {
+        const dir = path.dirname(filePath);
+
+        try {
+          fs.mkdirSync(dir, { recursive: true });
+          fs.writeFileSync(filePath, changelog.text);
+          console.log(`    ✓ Saved to ${filePath}`);
+        } catch (saveError) {
+          console.error(
+            `    ✗ Failed to save: ${saveError instanceof Error ? saveError.message : saveError}`,
+          );
+        }
+      } else {
+        console.log(`    ✓ Found changelog (${changelog.text.length} chars)`);
+      }
+    } catch (error) {
+      console.log(
+        `    ⚠ Error: ${error instanceof Error ? error.message : error}`,
+      );
+    }
+
+    // Add delay between requests to avoid rate limiting (except for the last one)
+    if (i < versions.length - 1) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
+
+  // Save not-found versions
+  if (save && newNotFoundVersions.length > 0) {
+    const dir = path.dirname(notFoundPath);
+    fs.mkdirSync(dir, { recursive: true });
+
+    let content: string;
+    if (fs.existsSync(notFoundPath)) {
+      // Append to existing file
+      content =
+        fs.readFileSync(notFoundPath, 'utf-8').trimEnd() +
+        '\n' +
+        newNotFoundVersions.join('\n') +
+        '\n';
+    } else {
+      // Create new file with header
+      content = `${notFoundFileHeader}\n\n${newNotFoundVersions.join('\n')}\n`;
+    }
+
+    fs.writeFileSync(notFoundPath, content);
+  }
+
+  return {
+    fetched: fetchedCount,
+    skipped: skippedCount,
+    notFound: newNotFoundVersions.length,
+  };
+}
+
+const fetchSourceCommand = new Command('fetch-source')
+  .description('Fetch changelogs for all packages from a source')
+  .requiredOption(
+    '-m, --manager <manager>',
+    'Package manager (npm, pypi, crates, rubygems, github)',
+  )
+  .option('-l, --limit <number>', 'Maximum number of versions per package')
+  .option(
+    '-s, --save',
+    'Save changelogs to changelogs/{manager}/{package}/{version}.md',
+  )
+  .option('--verbose', 'Enable verbose logging')
+  .action(async (options) => {
+    const { manager, limit, save, verbose = false } = options;
+    const logger = createLogger(verbose);
+
+    // Validate package manager
+    const pm = PACKAGE_MANAGERS[manager as keyof typeof PACKAGE_MANAGERS];
+    if (!pm) {
+      console.error(
+        `Unknown package manager: ${manager}. Available: ${Object.keys(PACKAGE_MANAGERS).join(', ')}`,
+      );
+      process.exit(1);
+    }
+
+    // Get all packages for this manager
+    const packages = allPackages.filter(
+      (p) => p.packageManager.dirname === pm.dirname,
+    );
+
+    if (packages.length === 0) {
+      console.error(`No packages configured for ${pm.name}.`);
+      process.exit(1);
+    }
+
+    console.log(
+      `Fetching changelogs for ${packages.length} packages from ${pm.name}...\n`,
+    );
+
+    const maxVersions = limit ? Number.parseInt(limit, 10) : undefined;
+
+    let totalFetched = 0;
+    let totalSkipped = 0;
+    let totalNotFound = 0;
+
+    for (let i = 0; i < packages.length; i++) {
+      const pkg = packages[i];
+      console.log(`\n[${i + 1}/${packages.length}] Processing ${pkg.name}...`);
+      console.log(`  Repository: ${pkg.repositoryUrl}`);
+
+      const result = await fetchAllVersionsForPackage(pkg, {
+        save: save ?? false,
+        verbose,
+        limit: maxVersions,
+        logger,
+      });
+
+      totalFetched += result.fetched;
+      totalSkipped += result.skipped;
+      totalNotFound += result.notFound;
+
+      console.log(
+        `  Summary: ${result.fetched} fetched, ${result.skipped} skipped, ${result.notFound} not found`,
+      );
+
+      // Add delay between packages to avoid rate limiting
+      if (i < packages.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+    }
+
+    console.log('\n--- Final Summary ---');
+    console.log(`Packages processed: ${packages.length}`);
+    console.log(`Total fetched: ${totalFetched}`);
+    console.log(`Total skipped: ${totalSkipped}`);
+    console.log(`Total not found: ${totalNotFound}`);
+    console.log('\nDone!');
+  });
+
 program.addCommand(fetchCommand);
 program.addCommand(listCommand);
 program.addCommand(versionsCommand);
 program.addCommand(fetchAllCommand);
+program.addCommand(fetchSourceCommand);
 
 program.parse();
