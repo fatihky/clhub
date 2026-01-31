@@ -12,7 +12,9 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(cat:*)",
-      "Bash(head:*)"
+      "Bash(head:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run changelog:*)"
     ]
   }
 }
