@@ -104,6 +104,11 @@ export const npmPackages = packageMapToArray(pm, {
     repositoryUrl: 'https://github.com/pagefind/pagefind',
     changelogFetcherOptions: { tagPrefix: 'v' },
   },
+  payload: {
+    repositoryUrl: 'https://github.com/payloadcms/payload',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: { tagPrefix: 'v' },
+  },
   pino: {
     repositoryUrl: 'https://github.com/pinojs/pino',
     changelogFetcherOptions: { tagPrefix: 'v' },
