@@ -123,6 +123,11 @@ export const npmPackages = packageMapToArray(pm, {
     },
     changelogFetcherOptions: { tagPrefix: 'v' },
   },
+  pm2: {
+    repositoryUrl: 'https://github.com/Unitech/pm2',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: { tagPrefix: 'v' },
+  },
   postcss: { repositoryUrl: 'https://github.com/postcss/postcss' },
   react: {
     repositoryUrl: 'https://github.com/facebook/react',
