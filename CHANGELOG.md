@@ -1,6 +1,10 @@
 ## [unreleased]
 
-## v0.1.0
+### 🚀 Features
+
+- Add hide pre-releases toggle with localStorage persistence
+
+## [0.1.0] - 2026-01-31
 
 ### 🚀 Features
 

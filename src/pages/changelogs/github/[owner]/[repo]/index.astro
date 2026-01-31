@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
-import { extractVersionFromEntry, sortChangelogEntriesByVersion, getChangelogSize } from "../../../../../changelog/utils";
+import { extractVersionFromEntry, sortChangelogEntriesByVersion, getChangelogSize, isPreRelease } from "../../../../../changelog/utils";
 import { route } from "../../../../../utils/route";
 
 export async function getStaticPaths() {
@@ -73,6 +73,10 @@ const repoUrl = `https://github.com/${owner}/${repo}`;
       placeholder="Filter versions..."
       class="filter-input"
     />
+    <label class="prerelease-toggle">
+      <input type="checkbox" id="hide-prereleases" />
+      <span>Hide pre-releases</span>
+    </label>
     <span class="version-count">
       <span id="visible-count">{versions.length}</span> of {versions.length} releases
     </span>
@@ -91,6 +95,7 @@ const repoUrl = `https://github.com/${owner}/${repo}`;
             href={route(`/changelogs/github/${owner}/${repo}/${version}/`)}
             class="version-item"
             data-version={version}
+            data-prerelease={isPreRelease(version) ? "true" : undefined}
           >
             <span class="version">{version}</span>
             {size && <span class="size">{size}</span>}
@@ -216,29 +221,61 @@ const repoUrl = `https://github.com/${owner}/${repo}`;
   .version-item.hidden {
     display: none;
   }
+  .prerelease-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--sl-color-gray-2);
+    user-select: none;
+  }
+  .prerelease-toggle input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+    accent-color: var(--sl-color-accent);
+  }
+  .prerelease-toggle:hover {
+    color: var(--sl-color-white);
+  }
 </style>
 
 <script>
-  const filterInput = document.getElementById(
-    "version-filter",
-  ) as HTMLInputElement;
-  const versionsList = document.getElementById("versions-list");
-  const visibleCount = document.getElementById("visible-count");
-  const versionItems = versionsList?.querySelectorAll(".version-item") ?? [];
+  const STORAGE_KEY = 'clhub:hidePreReleases';
 
-  filterInput?.addEventListener("input", () => {
-    const query = filterInput.value.toLowerCase().trim();
+  const filterInput = document.getElementById('version-filter') as HTMLInputElement;
+  const hidePrereleasesCheckbox = document.getElementById('hide-prereleases') as HTMLInputElement;
+  const versionsList = document.getElementById('versions-list');
+  const visibleCount = document.getElementById('visible-count');
+  const versionItems = versionsList?.querySelectorAll('.version-item') ?? [];
+
+  // Load saved preference
+  if (localStorage.getItem(STORAGE_KEY) === 'true') {
+    hidePrereleasesCheckbox.checked = true;
+  }
+
+  function applyFilters() {
+    const query = filterInput?.value.toLowerCase().trim() ?? '';
+    const hidePrereleases = hidePrereleasesCheckbox?.checked ?? false;
     let visible = 0;
 
     versionItems.forEach((item) => {
-      const version = item.getAttribute("data-version")?.toLowerCase() ?? "";
-      const matches = version.includes(query);
-      item.classList.toggle("hidden", !matches);
-      if (matches) visible++;
+      const version = item.getAttribute('data-version')?.toLowerCase() ?? '';
+      const isPrerelease = item.hasAttribute('data-prerelease');
+      const shouldShow = version.includes(query) && (!hidePrereleases || !isPrerelease);
+      item.classList.toggle('hidden', !shouldShow);
+      if (shouldShow) visible++;
     });
 
-    if (visibleCount) {
-      visibleCount.textContent = String(visible);
-    }
+    if (visibleCount) visibleCount.textContent = String(visible);
+  }
+
+  applyFilters(); // Apply on page load
+
+  filterInput?.addEventListener('input', applyFilters);
+  hidePrereleasesCheckbox?.addEventListener('change', () => {
+    localStorage.setItem(STORAGE_KEY, String(hidePrereleasesCheckbox.checked));
+    applyFilters();
   });
 </script>

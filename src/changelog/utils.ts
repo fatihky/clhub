@@ -1,5 +1,5 @@
 import { statSync } from 'node:fs';
-import { gt, lte, valid } from 'semver';
+import { gt, lte, prerelease, valid } from 'semver';
 import { compareVersionsDescending } from './version-fetchers/version-comparator';
 
 interface ChangelogEntry {
@@ -124,4 +124,27 @@ export function getChangelogSize(filePath: string | undefined): string {
   if (!filePath) return '';
   const bytes = getFileSizeBytes(filePath);
   return formatFileSize(bytes);
+}
+
+/**
+ * Checks if a version string represents a pre-release version.
+ * Uses semver's prerelease detection first, then falls back to regex
+ * for non-semver versions.
+ *
+ * @example
+ * isPreRelease('1.0.0-alpha') // true
+ * isPreRelease('2.0.0-beta.1') // true
+ * isPreRelease('3.0.0-rc.2') // true
+ * isPreRelease('1.0.0') // false
+ * isPreRelease('v2.0.0') // false
+ */
+export function isPreRelease(version: string): boolean {
+  const cleanVersion = version.replace(/^v/, '');
+  const prereleaseInfo = prerelease(cleanVersion);
+  if (prereleaseInfo !== null) return true;
+
+  // Fallback regex for non-semver versions
+  return /[-.]?(alpha|beta|canary|next|rc|dev|preview|snapshot|nightly|pre)/i.test(
+    cleanVersion,
+  );
 }
