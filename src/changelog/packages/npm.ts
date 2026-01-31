@@ -175,6 +175,78 @@ export const npmPackages = packageMapToArray(pm, {
   typescript: {
     repositoryUrl: 'https://github.com/microsoft/TypeScript',
   },
+  'vike-react': {
+    repositoryUrl: 'https://github.com/vikejs/vike-react',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'packages/vike-react/CHANGELOG.md',
+    },
+  },
+  'vike-react-antd': {
+    repositoryUrl: 'https://github.com/vikejs/vike-react',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'packages/vike-react-antd/CHANGELOG.md',
+    },
+  },
+  'vike-react-apollo': {
+    repositoryUrl: 'https://github.com/vikejs/vike-react',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'packages/vike-react-apollo/CHANGELOG.md',
+    },
+  },
+  'vike-react-chakra': {
+    repositoryUrl: 'https://github.com/vikejs/vike-react',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'packages/vike-react-chakra/CHANGELOG.md',
+    },
+  },
+  'vike-react-query': {
+    repositoryUrl: 'https://github.com/vikejs/vike-react',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'packages/vike-react-query/CHANGELOG.md',
+    },
+  },
+  'vike-react-redux': {
+    repositoryUrl: 'https://github.com/vikejs/vike-react',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'packages/vike-react-redux/CHANGELOG.md',
+    },
+  },
+  'vike-react-styled-components': {
+    repositoryUrl: 'https://github.com/vikejs/vike-react',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'packages/vike-react-styled-components/CHANGELOG.md',
+    },
+  },
+  'vike-react-styled-jsx': {
+    repositoryUrl: 'https://github.com/vikejs/vike-react',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'packages/vike-react-styled-jsx/CHANGELOG.md',
+    },
+  },
+  'vike-react-zustand': {
+    repositoryUrl: 'https://github.com/vikejs/vike-react',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'packages/vike-react-zustand/CHANGELOG.md',
+    },
+  },
   vite: {
     repositoryUrl: 'https://github.com/vitejs/vite',
     changelogFetcherOptions: {
