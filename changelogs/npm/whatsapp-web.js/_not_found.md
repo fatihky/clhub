@@ -9,3 +9,4 @@ They are listed here to prevent excessive checks.
 1.12.1
 0.1.1
 0.1.0
+1.34.5

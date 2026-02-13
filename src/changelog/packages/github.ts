@@ -15,4 +15,11 @@ export const githubPackages: Package[] = [
     'anthropics/claude-code',
     'https://github.com/anthropics/claude-code',
   ),
+  new Package(
+    pm,
+    'navidrome/navidrome',
+    'https://github.com/navidrome/navidrome',
+    undefined,
+    { tagPrefix: 'v' },
+  ),
 ];

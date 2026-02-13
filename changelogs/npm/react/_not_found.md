@@ -24,3 +24,6 @@ They are listed here to prevent excessive checks.
 0.0.3
 0.0.2
 0.0.1
+19.2.4
+19.1.5
+19.0.4

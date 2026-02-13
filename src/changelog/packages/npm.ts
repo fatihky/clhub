@@ -118,6 +118,7 @@ export const npmPackages = packageMapToArray(pm, {
     repositoryUrl: 'https://github.com/pinojs/pino-pretty',
     changelogFetcherOptions: { tagPrefix: 'v' },
   },
+  // placeholder
   playwright: {
     repositoryUrl: 'https://github.com/microsoft/playwright',
     versionFetcherOptions: {
@@ -185,6 +186,8 @@ export const npmPackages = packageMapToArray(pm, {
   },
   typescript: {
     repositoryUrl: 'https://github.com/microsoft/TypeScript',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: { tagPrefix: 'v' },
   },
   'vike-react': {
     repositoryUrl: 'https://github.com/vikejs/vike-react',

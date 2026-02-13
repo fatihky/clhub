@@ -11,3 +11,4 @@ They are listed here to prevent excessive checks.
 0.5.0
 0.2.7
 0.0.1
+0.8.1
