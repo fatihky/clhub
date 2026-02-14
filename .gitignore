@@ -1,3 +1,5 @@
+.claude/*.local.json
+
 # build output
 dist/
 # generated types
