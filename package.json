@@ -17,27 +17,27 @@
     "migrate": "tsx src/tools/migrate-to-db.ts"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.37.5",
+    "@astrojs/starlight": "^0.37.6",
     "@commander-js/extra-typings": "^14.0.0",
-    "astro": "^5.17.1",
+    "astro": "^5.17.2",
     "better-sqlite3": "^12.6.2",
-    "dotenv": "^17.2.3",
+    "dotenv": "^17.3.1",
     "rehype-raw": "^7.0.0",
     "rehype-stringify": "^10.0.1",
     "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
-    "semver": "^7.7.3",
+    "semver": "^7.7.4",
     "sharp": "^0.34.5",
     "unified": "^11.0.5"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.13",
+    "@biomejs/biome": "^2.3.15",
     "@types/better-sqlite3": "^7.6.13",
     "@types/semver": "^7.7.1",
     "node-addon-api": "^8.5.0",
     "node-gyp": "^12.2.0",
     "tsx": "^4.21.0"
   },
-  "packageManager": "pnpm@11.0.0-dev.1005+sha512.91f84a392eea348ea4852a182912d2520273a4336f933b78cc44bc931eb999923c097e9433a9b355adc1f725725ea99082fc9f032a559df832632e764c92c798"
+  "packageManager": "pnpm@10.29.3+sha512.498e1fb4cca5aa06c1dcf2611e6fafc50972ffe7189998c409e90de74566444298ffe43e6cd2acdc775ba1aa7cc5e092a8b7054c811ba8c5770f84693d33d2dc"
 }
