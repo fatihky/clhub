@@ -44,6 +44,11 @@ export const npmPackages = packageMapToArray(pm, {
   chokidar: {
     repositoryUrl: 'https://github.com/paulmillr/chokidar',
   },
+  commander: {
+    repositoryUrl: 'https://github.com/tj/commander.js',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: { tagPrefix: 'v' },
+  },
   corepack: {
     repositoryUrl: 'https://github.com/nodejs/corepack',
     changelogFetcherOptions: { tagPrefix: 'v' },
