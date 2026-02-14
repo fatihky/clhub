@@ -66,6 +66,10 @@ export const npmPackages = packageMapToArray(pm, {
     repositoryUrl: 'https://github.com/enquirer/enquirer',
     changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
+  esbuild: {
+    repositoryUrl: 'https://github.com/evanw/esbuild',
+    changelogFetcherOptions: { tagPrefix: 'v' },
+  },
   express: {
     repositoryUrl: 'https://github.com/expressjs/express',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
