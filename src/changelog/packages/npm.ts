@@ -57,6 +57,10 @@ export const npmPackages = packageMapToArray(pm, {
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
     changelogFetcherOptions: { tagPrefix: 'v' },
   },
+  enquirer: {
+    repositoryUrl: 'https://github.com/enquirer/enquirer',
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
+  },
   express: {
     repositoryUrl: 'https://github.com/expressjs/express',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
