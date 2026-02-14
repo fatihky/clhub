@@ -1,292 +1,295 @@
 ---
-import { getCollection } from 'astro:content';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import {
-  parseChangelogPath,
-  sortChangelogEntriesByVersion,
-  getChangelogSize,
-  isPreRelease,
+	sortChangelogEntriesByVersion,
+	getChangelogSize,
+	isPreRelease,
 } from '../../../changelog/utils';
 import { getPackageLinks } from '../../../changelog/packages';
 import { route } from '../../../utils/route';
+import { getAllChangelogEntries, getChangelogsForPackage } from '../../../db/queries';
 
 const sourceLabels: Record<string, string> = {
-  crates: 'Crates.io',
-  npm: 'npm',
-  pypi: 'PyPI',
-  rubygems: 'RubyGems',
+	crates: 'Crates.io',
+	npm: 'npm',
+	pypi: 'PyPI',
+	rubygems: 'RubyGems',
 };
 
 export async function getStaticPaths() {
-  const changelogs = await getCollection('changelogs');
-  const packages = new Map<string, { source: string; pkg: string }>();
+	const entries = getAllChangelogEntries();
+	const packages = new Map<string, { source: string; pkg: string }>();
 
-  for (const entry of changelogs) {
-    const filePath = entry.filePath || '';
-    const parsed = parseChangelogPath(filePath || entry.id);
+	for (const entry of entries) {
+		// Skip github - handled by separate route
+		if (entry.source === 'github') continue;
 
-    // Skip github - handled by separate route
-    if (parsed.source === 'github') continue;
+		// Skip scoped packages - handled by separate route
+		if (entry.package.startsWith('@')) continue;
 
-    // Skip scoped packages - handled by separate route (use filePath since ID strips @)
-    if (filePath.match(/changelogs\/\w+\/@[^/]+\//)) continue;
+		const key = `${entry.source}/${entry.package}`;
+		if (!packages.has(key)) {
+			packages.set(key, { source: entry.source, pkg: entry.package });
+		}
+	}
 
-    const key = `${parsed.source}/${parsed.pkg}`;
-    if (!packages.has(key)) {
-      packages.set(key, { source: parsed.source, pkg: parsed.pkg });
-    }
-  }
-
-  return [...packages.values()].map(({ source, pkg }) => ({
-    params: { source, pkg },
-  }));
+	return [...packages.values()].map(({ source, pkg }) => ({
+		params: { source, pkg },
+	}));
 }
 
 const { source, pkg } = Astro.params;
-const changelogs = await getCollection('changelogs', (entry) => {
-  const parsed = parseChangelogPath(entry.filePath ?? entry.id);
-  return parsed.source === source && parsed.pkg === pkg;
-});
+const changelogs = getChangelogsForPackage(source!, pkg!);
 
 // Sort versions (newest first)
 const versions = sortChangelogEntriesByVersion(changelogs);
 
 const sourceLabel = source ? (sourceLabels[source] ?? source) : 'Unknown';
-const packageLinks =
-  source && pkg ? await getPackageLinks(source, pkg) : undefined;
+const packageLinks = source && pkg ? await getPackageLinks(source, pkg) : undefined;
 ---
 
 <StarlightPage
-  frontmatter={{
-    title: pkg ?? "Package",
-    description: `Changelog versions for ${pkg} from ${sourceLabel}`,
-  }}
+	frontmatter={{
+		title: pkg ?? 'Package',
+		description: `Changelog versions for ${pkg} from ${sourceLabel}`,
+	}}
 >
-  <p class="source-info">
-    <a href={route(`/${source}/`)} class="badge">{sourceLabel}</a>
-    <span class="separator">/</span>
-    <span class="package-name">{pkg}</span>
-  </p>
+	<p class="source-info">
+		<a href={route(`/${source}/`)} class="badge">{sourceLabel}</a>
+		<span class="separator">/</span>
+		<span class="package-name">{pkg}</span>
+	</p>
 
-  {packageLinks && (
-    <p class="package-links">
-      <a href={packageLinks.homepage} target="_blank" rel="noopener noreferrer" class="link">
-        View on {sourceLabel}
-      </a>
-    </p>
-  )}
+	{
+		packageLinks && (
+			<p class="package-links">
+				<a
+					href={packageLinks.homepage}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="link"
+				>
+					View on {sourceLabel}
+				</a>
+			</p>
+		)
+	}
 
-  <div class="filter-container">
-    <input
-      type="text"
-      id="version-filter"
-      placeholder="Filter versions..."
-      class="filter-input"
-    />
-    <label class="prerelease-toggle">
-      <input type="checkbox" id="hide-prereleases" />
-      <span>Hide pre-releases</span>
-    </label>
-    <span class="version-count">
-      <span id="visible-count">{versions.length}</span> of {versions.length} versions
-    </span>
-    <a href={route(`/${source}/${pkg}/compare`)} class="compare-link">
-      Compare Versions
-    </a>
-  </div>
+	<div class="filter-container">
+		<input
+			type="text"
+			id="version-filter"
+			placeholder="Filter versions..."
+			class="filter-input"
+		/>
+		<label class="prerelease-toggle">
+			<input type="checkbox" id="hide-prereleases" />
+			<span>Hide pre-releases</span>
+		</label>
+		<span class="version-count">
+			<span id="visible-count">{versions.length}</span> of {versions.length} versions
+		</span>
+		<a href={route(`/${source}/${pkg}/compare`)} class="compare-link">
+			Compare Versions
+		</a>
+	</div>
 
-  <div class="versions-list" id="versions-list">
-    {
-      versions.map((entry) => {
-        const version = parseChangelogPath(entry.filePath ?? entry.id).version;
-        const size = getChangelogSize(entry.filePath);
+	<div class="versions-list" id="versions-list">
+		{
+			versions.map((entry) => {
+				const size = getChangelogSize(entry.size);
 
-        return (
-          <a
-            href={route(`/${source}/${pkg}/${version}/`)}
-            class="version-item"
-            data-version={version}
-            data-prerelease={isPreRelease(version) ? "true" : undefined}
-          >
-            <span class="version">{version}</span>
-            {size && <span class="size">{size}</span>}
-          </a>
-        );
-      })
-    }
-  </div>
+				return (
+					<a
+						href={route(`/${source}/${pkg}/${entry.version}/`)}
+						class="version-item"
+						data-version={entry.version}
+						data-prerelease={isPreRelease(entry.version) ? 'true' : undefined}
+					>
+						<span class="version">{entry.version}</span>
+						{size && <span class="size">{size}</span>}
+					</a>
+				);
+			})
+		}
+	</div>
 </StarlightPage>
 
 <style>
-  .source-info {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-  }
-  .badge {
-    background: var(--sl-color-accent);
-    color: var(--sl-color-black);
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    text-decoration: none;
-  }
-  .badge:hover {
-    opacity: 0.9;
-  }
-  .separator {
-    color: var(--sl-color-gray-3);
-  }
-  .package-name {
-    font-family: var(--sl-font-mono);
-    color: var(--sl-color-gray-2);
-  }
-  .package-links {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-    font-size: 0.875rem;
-  }
-  .package-links .link {
-    color: var(--sl-color-text-accent);
-    text-decoration: none;
-  }
-  .package-links .link:hover {
-    text-decoration: underline;
-  }
-  .filter-container {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-  }
-  .filter-input {
-    flex: 1;
-    min-width: 200px;
-    max-width: 300px;
-    padding: 0.5rem 0.75rem;
-    background: var(--sl-color-gray-6);
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 0.25rem;
-    color: var(--sl-color-white);
-    font-family: var(--sl-font-mono);
-    font-size: 0.875rem;
-  }
-  .filter-input:focus {
-    outline: none;
-    border-color: var(--sl-color-accent);
-  }
-  .filter-input::placeholder {
-    color: var(--sl-color-gray-3);
-  }
-  .version-count {
-    color: var(--sl-color-gray-3);
-    font-size: 0.875rem;
-  }
-  .compare-link {
-    padding: 0.5rem 0.75rem;
-    background: var(--sl-color-gray-6);
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 0.25rem;
-    color: var(--sl-color-white);
-    font-size: 0.875rem;
-    text-decoration: none;
-    white-space: nowrap;
-  }
-  .compare-link:hover {
-    background: var(--sl-color-gray-5);
-    border-color: var(--sl-color-accent);
-  }
-  .versions-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-  .version-item {
-    display: flex;
-    align-items: center;
-    padding: 0.5rem 0;
-    text-decoration: none;
-    font-family: var(--sl-font-mono);
-    font-size: 0.875rem;
-    border-bottom: 1px solid var(--sl-color-gray-6);
-  }
-  .version-item:first-child {
-    border-top: 1px solid var(--sl-color-gray-6);
-  }
-  .version-item:hover {
-    background: var(--sl-color-gray-6);
-  }
-  .version {
-    color: var(--sl-color-white);
-  }
-  .size {
-    color: var(--sl-color-gray-3);
-    font-size: 0.75rem;
-    margin-left: auto;
-  }
-  .version-item.hidden {
-    display: none;
-  }
-  .prerelease-toggle {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    font-size: 0.875rem;
-    color: var(--sl-color-gray-2);
-    user-select: none;
-  }
-  .prerelease-toggle input[type="checkbox"] {
-    width: 1rem;
-    height: 1rem;
-    cursor: pointer;
-    accent-color: var(--sl-color-accent);
-  }
-  .prerelease-toggle:hover {
-    color: var(--sl-color-white);
-  }
+	.source-info {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 0.5rem;
+	}
+	.badge {
+		background: var(--sl-color-accent);
+		color: var(--sl-color-black);
+		padding: 0.25rem 0.5rem;
+		border-radius: 0.25rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+		text-decoration: none;
+	}
+	.badge:hover {
+		opacity: 0.9;
+	}
+	.separator {
+		color: var(--sl-color-gray-3);
+	}
+	.package-name {
+		font-family: var(--sl-font-mono);
+		color: var(--sl-color-gray-2);
+	}
+	.package-links {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 1.5rem;
+		font-size: 0.875rem;
+	}
+	.package-links .link {
+		color: var(--sl-color-text-accent);
+		text-decoration: none;
+	}
+	.package-links .link:hover {
+		text-decoration: underline;
+	}
+	.filter-container {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		margin-bottom: 1rem;
+		flex-wrap: wrap;
+	}
+	.filter-input {
+		flex: 1;
+		min-width: 200px;
+		max-width: 300px;
+		padding: 0.5rem 0.75rem;
+		background: var(--sl-color-gray-6);
+		border: 1px solid var(--sl-color-gray-5);
+		border-radius: 0.25rem;
+		color: var(--sl-color-white);
+		font-family: var(--sl-font-mono);
+		font-size: 0.875rem;
+	}
+	.filter-input:focus {
+		outline: none;
+		border-color: var(--sl-color-accent);
+	}
+	.filter-input::placeholder {
+		color: var(--sl-color-gray-3);
+	}
+	.version-count {
+		color: var(--sl-color-gray-3);
+		font-size: 0.875rem;
+	}
+	.compare-link {
+		padding: 0.5rem 0.75rem;
+		background: var(--sl-color-gray-6);
+		border: 1px solid var(--sl-color-gray-5);
+		border-radius: 0.25rem;
+		color: var(--sl-color-white);
+		font-size: 0.875rem;
+		text-decoration: none;
+		white-space: nowrap;
+	}
+	.compare-link:hover {
+		background: var(--sl-color-gray-5);
+		border-color: var(--sl-color-accent);
+	}
+	.versions-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0;
+	}
+	.version-item {
+		display: flex;
+		align-items: center;
+		padding: 0.5rem 0;
+		text-decoration: none;
+		font-family: var(--sl-font-mono);
+		font-size: 0.875rem;
+		border-bottom: 1px solid var(--sl-color-gray-6);
+	}
+	.version-item:first-child {
+		border-top: 1px solid var(--sl-color-gray-6);
+	}
+	.version-item:hover {
+		background: var(--sl-color-gray-6);
+	}
+	.version {
+		color: var(--sl-color-white);
+	}
+	.size {
+		color: var(--sl-color-gray-3);
+		font-size: 0.75rem;
+		margin-left: auto;
+	}
+	.version-item.hidden {
+		display: none;
+	}
+	.prerelease-toggle {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		cursor: pointer;
+		font-size: 0.875rem;
+		color: var(--sl-color-gray-2);
+		user-select: none;
+	}
+	.prerelease-toggle input[type='checkbox'] {
+		width: 1rem;
+		height: 1rem;
+		cursor: pointer;
+		accent-color: var(--sl-color-accent);
+	}
+	.prerelease-toggle:hover {
+		color: var(--sl-color-white);
+	}
 </style>
 
 <script>
-  const STORAGE_KEY = 'clhub:hidePreReleases';
+	const STORAGE_KEY = 'clhub:hidePreReleases';
 
-  const filterInput = document.getElementById('version-filter') as HTMLInputElement;
-  const hidePrereleasesCheckbox = document.getElementById('hide-prereleases') as HTMLInputElement;
-  const versionsList = document.getElementById('versions-list');
-  const visibleCount = document.getElementById('visible-count');
-  const versionItems = versionsList?.querySelectorAll('.version-item') ?? [];
+	const filterInput = document.getElementById(
+		'version-filter',
+	) as HTMLInputElement;
+	const hidePrereleasesCheckbox = document.getElementById(
+		'hide-prereleases',
+	) as HTMLInputElement;
+	const versionsList = document.getElementById('versions-list');
+	const visibleCount = document.getElementById('visible-count');
+	const versionItems = versionsList?.querySelectorAll('.version-item') ?? [];
 
-  // Load saved preference
-  if (localStorage.getItem(STORAGE_KEY) === 'true') {
-    hidePrereleasesCheckbox.checked = true;
-  }
+	// Load saved preference
+	if (localStorage.getItem(STORAGE_KEY) === 'true') {
+		hidePrereleasesCheckbox.checked = true;
+	}
 
-  function applyFilters() {
-    const query = filterInput?.value.toLowerCase().trim() ?? '';
-    const hidePrereleases = hidePrereleasesCheckbox?.checked ?? false;
-    let visible = 0;
+	function applyFilters() {
+		const query = filterInput?.value.toLowerCase().trim() ?? '';
+		const hidePrereleases = hidePrereleasesCheckbox?.checked ?? false;
+		let visible = 0;
 
-    versionItems.forEach((item) => {
-      const version = item.getAttribute('data-version')?.toLowerCase() ?? '';
-      const isPrerelease = item.hasAttribute('data-prerelease');
-      const shouldShow = version.includes(query) && (!hidePrereleases || !isPrerelease);
-      item.classList.toggle('hidden', !shouldShow);
-      if (shouldShow) visible++;
-    });
+		versionItems.forEach((item) => {
+			const version = item.getAttribute('data-version')?.toLowerCase() ?? '';
+			const isPrerelease = item.hasAttribute('data-prerelease');
+			const shouldShow =
+				version.includes(query) && (!hidePrereleases || !isPrerelease);
+			item.classList.toggle('hidden', !shouldShow);
+			if (shouldShow) visible++;
+		});
 
-    if (visibleCount) visibleCount.textContent = String(visible);
-  }
+		if (visibleCount) visibleCount.textContent = String(visible);
+	}
 
-  applyFilters(); // Apply on page load
+	applyFilters(); // Apply on page load
 
-  filterInput?.addEventListener('input', applyFilters);
-  hidePrereleasesCheckbox?.addEventListener('change', () => {
-    localStorage.setItem(STORAGE_KEY, String(hidePrereleasesCheckbox.checked));
-    applyFilters();
-  });
+	filterInput?.addEventListener('input', applyFilters);
+	hidePrereleasesCheckbox?.addEventListener('change', () => {
+		localStorage.setItem(STORAGE_KEY, String(hidePrereleasesCheckbox.checked));
+		applyFilters();
+	});
 </script>

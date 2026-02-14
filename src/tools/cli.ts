@@ -1,25 +1,24 @@
 import 'dotenv/config';
 
-import fs from 'node:fs';
 import path from 'node:path';
 import { Command } from '@commander-js/extra-typings';
 import { getChangelogFetcher } from '../changelog/fetchers';
 import { createLogger, type Logger } from '../changelog/logger';
 import { PACKAGE_MANAGERS, Package } from '../changelog/package';
 import { allPackages } from '../changelog/packages';
-import { buildChangelogPath } from '../changelog/utils';
+import {
+	insertChangelog,
+	changelogExists,
+	isVersionNotFound,
+	markVersionNotFound,
+} from '../db/changelog-repository';
 
 const program = new Command();
 
 program
-  .name('changelog')
-  .description('Fetch changelogs for packages')
-  .version('0.0.1');
-
-const notFoundFileHeader = `<!--
-These versions' release notes could not be found.
-They are listed here to prevent excessive checks.
--->`;
+	.name('changelog')
+	.description('Fetch changelogs for packages')
+	.version('0.0.1');
 
 const fetchCommand = new Command('fetch')
   .description('Fetch changelog for a package')
@@ -84,28 +83,13 @@ const fetchCommand = new Command('fetch')
 
     const fetcher = getChangelogFetcher(pkg.changelogFetcherOptions?.type);
     const dir = pkg.packageManager.dirname;
-    const notFoundPath = path.join(
-      'changelogs',
-      dir,
-      pkg.name,
-      '_not_found.md',
-    );
 
     // Check if version is already marked as not found
-    if (fs.existsSync(notFoundPath)) {
-      const content = fs.readFileSync(notFoundPath, 'utf-8');
-      const notFoundVersions = new Set(
-        content
-          .split('\n')
-          .map((line) => line.trim())
-          .filter((line) => line && !line.startsWith('#')),
+    if (isVersionNotFound(dir, pkg.name, version)) {
+      console.error(
+        `Version ${version} is marked as not found in the database`,
       );
-      if (notFoundVersions.has(version)) {
-        console.error(
-          `Version ${version} is marked as not found in ${notFoundPath}`,
-        );
-        process.exit(1);
-      }
+      process.exit(1);
     }
 
     console.log(
@@ -118,22 +102,8 @@ const fetchCommand = new Command('fetch')
       console.error('Failed to fetch changelog. No release found.');
 
       if (save) {
-        const dir = path.dirname(notFoundPath);
-        fs.mkdirSync(dir, { recursive: true });
-
-        let content: string;
-        if (fs.existsSync(notFoundPath)) {
-          content =
-            fs.readFileSync(notFoundPath, 'utf-8').trimEnd() +
-            '\n' +
-            version +
-            '\n';
-        } else {
-          content = `${notFoundFileHeader}\n\n${version}\n`;
-        }
-
-        fs.writeFileSync(notFoundPath, content);
-        console.error(`Version added to ${notFoundPath}`);
+        markVersionNotFound(dir, pkg.name, version);
+        console.error(`Version marked as not found in database`);
       }
 
       process.exit(1);
@@ -143,18 +113,8 @@ const fetchCommand = new Command('fetch')
     console.log(changelog.text);
 
     if (save) {
-      const filePath = buildChangelogPath(
-        dir,
-        pkg.name,
-        version,
-        pkg.groupByMajorVersion ?? false,
-      );
-      const fileDir = path.dirname(filePath);
-
-      fs.mkdirSync(fileDir, { recursive: true });
-      fs.writeFileSync(filePath, changelog.text);
-
-      console.log(`\nChangelog saved to ${filePath}`);
+      insertChangelog(dir, pkg.name, version, changelog.text);
+      console.log(`\nChangelog saved to database`);
     }
   });
 
@@ -364,24 +324,6 @@ const fetchAllCommand = new Command('fetch-all')
     const fetcher = getChangelogFetcher(pkg.changelogFetcherOptions?.type);
 
     const dir = pm.dirname;
-    const notFoundPath = path.join(
-      'changelogs',
-      dir,
-      packageName,
-      '_not_found.md',
-    );
-
-    // Load existing not-found versions
-    const notFoundVersions = new Set<string>();
-    if (fs.existsSync(notFoundPath)) {
-      const content = fs.readFileSync(notFoundPath, 'utf-8');
-      for (const line of content.split('\n')) {
-        const trimmed = line.trim();
-        if (trimmed && !trimmed.startsWith('#')) {
-          notFoundVersions.add(trimmed);
-        }
-      }
-    }
 
     // Process versions sequentially with delay to avoid rate limiting
     let skippedCount = 0;
@@ -391,15 +333,8 @@ const fetchAllCommand = new Command('fetch-all')
       const versionInfo = versions[i];
       const version = versionInfo.version;
 
-      const filePath = buildChangelogPath(
-        dir,
-        packageName,
-        version,
-        pkg.groupByMajorVersion ?? false,
-      );
-
-      // Skip if file already exists
-      if (fs.existsSync(filePath)) {
+      // Skip if changelog already exists in database
+      if (changelogExists(dir, packageName, version)) {
         console.log(
           `[${i + 1}/${versions.length}] Skipping ${version} (already exists)`,
         );
@@ -408,7 +343,7 @@ const fetchAllCommand = new Command('fetch-all')
       }
 
       // Skip if already marked as not found
-      if (notFoundVersions.has(version)) {
+      if (isVersionNotFound(dir, packageName, version)) {
         console.log(
           `[${i + 1}/${versions.length}] Skipping ${version} (marked as not found)`,
         );
@@ -433,12 +368,9 @@ const fetchAllCommand = new Command('fetch-all')
         }
 
         if (save) {
-          const dir = path.dirname(filePath);
-
           try {
-            fs.mkdirSync(dir, { recursive: true });
-            fs.writeFileSync(filePath, changelog.text);
-            console.log(`  ✓ Saved to ${filePath}`);
+            insertChangelog(dir, packageName, version, changelog.text);
+            console.log(`  ✓ Saved to database`);
           } catch (saveError) {
             console.error(
               `  ✗ Failed to save: ${saveError instanceof Error ? saveError.message : saveError}`,
@@ -461,25 +393,11 @@ const fetchAllCommand = new Command('fetch-all')
 
     // Save not-found versions
     if (save && newNotFoundVersions.length > 0) {
-      const dir = path.dirname(notFoundPath);
-      fs.mkdirSync(dir, { recursive: true });
-
-      let content: string;
-      if (fs.existsSync(notFoundPath)) {
-        // Append to existing file
-        content =
-          fs.readFileSync(notFoundPath, 'utf-8').trimEnd() +
-          '\n' +
-          newNotFoundVersions.join('\n') +
-          '\n';
-      } else {
-        // Create new file with header
-        content = `${notFoundFileHeader}\n\n${newNotFoundVersions.join('\n')}\n`;
+      for (const version of newNotFoundVersions) {
+        markVersionNotFound(dir, packageName, version);
       }
-
-      fs.writeFileSync(notFoundPath, content);
       console.log(
-        `\nAdded ${newNotFoundVersions.length} version(s) to ${notFoundPath}`,
+        `\nMarked ${newNotFoundVersions.length} version(s) as not found in database`,
       );
     }
 
@@ -528,19 +446,6 @@ async function fetchAllVersionsForPackage(
   const fetcher = getChangelogFetcher(pkg.changelogFetcherOptions?.type);
 
   const dir = pm.dirname;
-  const notFoundPath = path.join('changelogs', dir, pkg.name, '_not_found.md');
-
-  // Load existing not-found versions
-  const notFoundVersions = new Set<string>();
-  if (fs.existsSync(notFoundPath)) {
-    const content = fs.readFileSync(notFoundPath, 'utf-8');
-    for (const line of content.split('\n')) {
-      const trimmed = line.trim();
-      if (trimmed && !trimmed.startsWith('#') && !trimmed.startsWith('<')) {
-        notFoundVersions.add(trimmed);
-      }
-    }
-  }
 
   let skippedCount = 0;
   let fetchedCount = 0;
@@ -550,15 +455,8 @@ async function fetchAllVersionsForPackage(
     const versionInfo = versions[i];
     const version = versionInfo.version;
 
-    const filePath = buildChangelogPath(
-      dir,
-      pkg.name,
-      version,
-      pkg.groupByMajorVersion ?? false,
-    );
-
-    // Skip if file already exists
-    if (fs.existsSync(filePath)) {
+    // Skip if changelog already exists in database
+    if (changelogExists(dir, pkg.name, version)) {
       if (verbose) {
         console.log(
           `  [${i + 1}/${versions.length}] Skipping ${version} (already exists)`,
@@ -569,7 +467,7 @@ async function fetchAllVersionsForPackage(
     }
 
     // Skip if already marked as not found
-    if (notFoundVersions.has(version)) {
+    if (isVersionNotFound(dir, pkg.name, version)) {
       if (verbose) {
         console.log(
           `  [${i + 1}/${versions.length}] Skipping ${version} (marked as not found)`,
@@ -598,12 +496,9 @@ async function fetchAllVersionsForPackage(
       fetchedCount++;
 
       if (save) {
-        const dir = path.dirname(filePath);
-
         try {
-          fs.mkdirSync(dir, { recursive: true });
-          fs.writeFileSync(filePath, changelog.text);
-          console.log(`    ✓ Saved to ${filePath}`);
+          insertChangelog(dir, pkg.name, version, changelog.text);
+          console.log(`    ✓ Saved to database`);
         } catch (saveError) {
           console.error(
             `    ✗ Failed to save: ${saveError instanceof Error ? saveError.message : saveError}`,
@@ -626,23 +521,9 @@ async function fetchAllVersionsForPackage(
 
   // Save not-found versions
   if (save && newNotFoundVersions.length > 0) {
-    const dir = path.dirname(notFoundPath);
-    fs.mkdirSync(dir, { recursive: true });
-
-    let content: string;
-    if (fs.existsSync(notFoundPath)) {
-      // Append to existing file
-      content =
-        fs.readFileSync(notFoundPath, 'utf-8').trimEnd() +
-        '\n' +
-        newNotFoundVersions.join('\n') +
-        '\n';
-    } else {
-      // Create new file with header
-      content = `${notFoundFileHeader}\n\n${newNotFoundVersions.join('\n')}\n`;
+    for (const version of newNotFoundVersions) {
+      markVersionNotFound(dir, pkg.name, version);
     }
-
-    fs.writeFileSync(notFoundPath, content);
   }
 
   return {

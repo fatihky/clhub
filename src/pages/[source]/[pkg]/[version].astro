@@ -1,108 +1,101 @@
 ---
-import { getCollection, render } from 'astro:content';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import CopyButton from '../../../components/CopyButton.astro';
-import { parseChangelogPath } from '../../../changelog/utils';
 import { route } from '../../../utils/route';
+import { getAllChangelogEntries } from '../../../db/queries';
+import { renderMarkdown } from '../../../db/markdown';
 
 const sourceLabels: Record<string, string> = {
-  crates: 'Crates.io',
-  npm: 'npm',
-  pypi: 'PyPI',
-  rubygems: 'RubyGems',
+	crates: 'Crates.io',
+	npm: 'npm',
+	pypi: 'PyPI',
+	rubygems: 'RubyGems',
 };
 
 export async function getStaticPaths() {
-  const changelogs = await getCollection('changelogs');
+	const entries = getAllChangelogEntries();
 
-  return changelogs
-    .filter((entry) => {
-      const filePath = entry.filePath || '';
-      // Skip github - handled by separate route
-      if (entry.id.startsWith('github/')) return false;
-      // Skip scoped packages - handled by separate route (use filePath since ID strips @)
-      if (filePath.match(/changelogs\/\w+\/@[^/]+\//)) return false;
-      return true;
-    })
-    .map((entry) => {
-      const parsed = parseChangelogPath(entry.filePath ?? entry.id);
-
-      return {
-        params: {
-          source: parsed.source,
-          pkg: parsed.pkg,
-          version: parsed.version,
-        },
-        props: { entry },
-      };
-    });
+	return entries
+		.filter((entry) => {
+			// Skip github - handled by separate route
+			if (entry.source === 'github') return false;
+			// Skip scoped packages - handled by separate route
+			if (entry.package.startsWith('@')) return false;
+			return true;
+		})
+		.map((entry) => ({
+			params: {
+				source: entry.source,
+				pkg: entry.package,
+				version: entry.version,
+			},
+			props: { entry },
+		}));
 }
 
 const { source, pkg, version } = Astro.params;
 const { entry } = Astro.props;
-const { Content } = await render(entry);
+const html = await renderMarkdown(entry.markdown);
 
 const sourceLabel = sourceLabels[source!] || source;
 ---
 
 <StarlightPage
-  frontmatter={{
-    title: `${pkg} ${version}`,
-    description: `Changelog for ${pkg} version ${version} from ${sourceLabel}`,
-  }}
+	frontmatter={{
+		title: `${pkg} ${version}`,
+		description: `Changelog for ${pkg} version ${version} from ${sourceLabel}`,
+	}}
 >
-  <p class="breadcrumb">
-    <a href={route(`/${source}/`)} class="badge">{sourceLabel}</a>
-    <span class="separator">/</span>
-    <a href={route(`/${source}/${pkg}/`)} class="package-name"
-      >{pkg}</a
-    >
-    <span class="separator">/</span>
-    <span class="version">{version}</span>
-    {entry.body && <CopyButton content={entry.body} />}
-  </p>
+	<p class="breadcrumb">
+		<a href={route(`/${source}/`)} class="badge">{sourceLabel}</a>
+		<span class="separator">/</span>
+		<a href={route(`/${source}/${pkg}/`)} class="package-name">{pkg}</a>
+		<span class="separator">/</span>
+		<span class="version">{version}</span>
+		<CopyButton content={entry.markdown} />
+	</p>
 
-  <div class="changelog-content">
-    <Content />
-  </div>
+	<div class="changelog-content">
+		<Fragment set:html={html} />
+	</div>
 </StarlightPage>
 
 <style>
-  .changelog-content {
-    position: relative;
-  }
-  .breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-  }
-  .badge {
-    background: var(--sl-color-accent);
-    color: var(--sl-color-black);
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    text-decoration: none;
-  }
-  .badge:hover {
-    opacity: 0.9;
-  }
-  .separator {
-    color: var(--sl-color-gray-3);
-  }
-  .package-name {
-    font-family: var(--sl-font-mono);
-    color: var(--sl-color-text);
-    text-decoration: none;
-  }
-  .package-name:hover {
-    color: var(--sl-color-accent);
-  }
-  .version {
-    font-family: var(--sl-font-mono);
-    color: var(--sl-color-gray-2);
-  }
+	.changelog-content {
+		position: relative;
+	}
+	.breadcrumb {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 1.5rem;
+		flex-wrap: wrap;
+	}
+	.badge {
+		background: var(--sl-color-accent);
+		color: var(--sl-color-black);
+		padding: 0.25rem 0.5rem;
+		border-radius: 0.25rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+		text-decoration: none;
+	}
+	.badge:hover {
+		opacity: 0.9;
+	}
+	.separator {
+		color: var(--sl-color-gray-3);
+	}
+	.package-name {
+		font-family: var(--sl-font-mono);
+		color: var(--sl-color-text);
+		text-decoration: none;
+	}
+	.package-name:hover {
+		color: var(--sl-color-accent);
+	}
+	.version {
+		font-family: var(--sl-font-mono);
+		color: var(--sl-color-gray-2);
+	}
 </style>

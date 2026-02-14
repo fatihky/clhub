@@ -1,22 +1,19 @@
 ---
-import { getCollection, render } from 'astro:content';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import {
-  parseChangelogPath,
-  sortChangelogEntriesByVersion,
-} from '../../../../changelog/utils';
+import { sortChangelogEntriesByVersion } from '../../../../changelog/utils';
 import { route } from '../../../../utils/route';
+import { getAllChangelogEntries, getChangelogsForPackage } from '../../../../db/queries';
+import { renderMarkdown } from '../../../../db/markdown';
 
 export async function getStaticPaths() {
-  const changelogs = await getCollection('changelogs', ({ id }) =>
-    id.startsWith('github/'),
-  );
+  const entries = getAllChangelogEntries();
   const repos = new Map<string, { owner: string; repo: string }>();
 
-  for (const entry of changelogs) {
-    const parsed = parseChangelogPath(entry.filePath ?? entry.id);
-    // pkg is "owner/repo" for GitHub
-    const [owner, repo] = parsed.pkg.split('/');
+  for (const entry of entries) {
+    if (entry.source !== 'github') continue;
+
+    // package is "owner/repo" for GitHub
+    const [owner, repo] = entry.package.split('/');
     if (owner && repo) {
       const key = `${owner.toLowerCase()}/${repo.toLowerCase()}`;
       if (!repos.has(key)) {
@@ -32,27 +29,19 @@ export async function getStaticPaths() {
 
 const { owner, repo } = Astro.params;
 const fullName = `${owner}/${repo}`;
-const changelogs = await getCollection('changelogs', (entry) => {
-  const parsed = parseChangelogPath(entry.filePath ?? entry.id);
-  return (
-    parsed.source === 'github' &&
-    parsed.pkg.toLowerCase() === fullName.toLowerCase()
-  );
-});
+const changelogs = getChangelogsForPackage('github', fullName);
 
 // Sort versions (newest first)
 const allVersions = sortChangelogEntriesByVersion(changelogs);
-const versionList = allVersions.map(
-  (e) => parseChangelogPath(e.filePath ?? e.id).version,
-);
+const versionList = allVersions.map((e) => e.version);
 
 // Pre-render all entries for client-side filtering
 const renderedEntries = await Promise.all(
   allVersions.map(async (entry) => {
-    const { Content } = await render(entry);
+    const html = await renderMarkdown(entry.markdown);
     return {
-      version: parseChangelogPath(entry.filePath ?? entry.id).version,
-      Content,
+      version: entry.version,
+      html,
     };
   }),
 );
@@ -112,7 +101,7 @@ const repoUrl = `https://github.com/${owner}/${repo}`;
   <p id="version-summary" class="version-summary" style="display: none;"></p>
 
   <div id="changelog-list" class="changelog-list">
-    {renderedEntries.map(({ version, Content }) => (
+    {renderedEntries.map(({ version, html }) => (
       <div class="changelog-entry" data-version={version} style="display: none;">
         <div class="changelog-header">
           <a href={route(`/github/${owner}/${repo}/${version}/`)} class="version-link">
@@ -120,7 +109,7 @@ const repoUrl = `https://github.com/${owner}/${repo}`;
           </a>
         </div>
         <div class="changelog-content">
-          <Content />
+          <Fragment set:html={html} />
         </div>
       </div>
     ))}

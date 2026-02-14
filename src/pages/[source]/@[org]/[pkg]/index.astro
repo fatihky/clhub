@@ -1,14 +1,13 @@
 ---
-import { getCollection } from 'astro:content';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import {
-  parseChangelogPath,
   sortChangelogEntriesByVersion,
   getChangelogSize,
   isPreRelease,
 } from '../../../../changelog/utils';
 import { getPackageLinks } from '../../../../changelog/packages';
 import { route } from '../../../../utils/route';
+import { getAllChangelogEntries, getChangelogsForPackage } from '../../../../db/queries';
 
 const sourceLabels: Record<string, string> = {
   crates: 'Crates.io',
@@ -18,22 +17,18 @@ const sourceLabels: Record<string, string> = {
 };
 
 export async function getStaticPaths() {
-  const changelogs = await getCollection('changelogs');
+  const entries = getAllChangelogEntries();
   const packages = new Map<
     string,
     { source: string; org: string; pkg: string }
   >();
 
-  for (const entry of changelogs) {
-    // Use filePath to detect scoped packages (ID strips @ symbol)
-    const filePath = entry.filePath || '';
-    const parsed = parseChangelogPath(filePath);
-
+  for (const entry of entries) {
     // Only handle scoped packages
-    const scopedMatch = parsed.pkg.match(/^@([^/]+)\/(.+)$/);
+    const scopedMatch = entry.package.match(/^@([^/]+)\/(.+)$/);
     if (!scopedMatch) continue;
 
-    const source = parsed.source;
+    const source = entry.source;
     const org = scopedMatch[1];
     const pkg = scopedMatch[2];
 
@@ -53,11 +48,7 @@ export async function getStaticPaths() {
 
 const { source, org, pkg } = Astro.params;
 const fullPkg = `@${org}/${pkg}`;
-// Use parseChangelogPath for filtering to handle major version grouping
-const changelogs = await getCollection('changelogs', (entry) => {
-  const parsed = parseChangelogPath(entry.filePath ?? entry.id);
-  return parsed.source === source && parsed.pkg === fullPkg;
-});
+const changelogs = getChangelogsForPackage(source!, fullPkg);
 
 // Sort versions (newest first)
 const versions = sortChangelogEntriesByVersion(changelogs);
@@ -110,17 +101,16 @@ const packageLinks = source
   <div class="versions-list" id="versions-list">
     {
       versions.map((entry) => {
-        const version = parseChangelogPath(entry.filePath ?? entry.id).version;
-        const size = getChangelogSize(entry.filePath);
+        const size = getChangelogSize(entry.size);
 
         return (
           <a
-            href={route(`/${source}/@${org}/${pkg}/${version}/`)}
+            href={route(`/${source}/@${org}/${pkg}/${entry.version}/`)}
             class="version-item"
-            data-version={version}
-            data-prerelease={isPreRelease(version) ? "true" : undefined}
+            data-version={entry.version}
+            data-prerelease={isPreRelease(entry.version) ? "true" : undefined}
           >
-            <span class="version">{version}</span>
+            <span class="version">{entry.version}</span>
             {size && <span class="size">{size}</span>}
           </a>
         );

@@ -1,12 +1,10 @@
 ---
-import { getCollection, render } from 'astro:content';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import {
-  parseChangelogPath,
-  sortChangelogEntriesByVersion,
-} from '../../../changelog/utils';
+import { sortChangelogEntriesByVersion } from '../../../changelog/utils';
 import { getPackageLinks } from '../../../changelog/packages';
 import { route } from '../../../utils/route';
+import { getAllChangelogEntries, getChangelogsForPackage } from '../../../db/queries';
+import { renderMarkdown } from '../../../db/markdown';
 
 const sourceLabels: Record<string, string> = {
   crates: 'Crates.io',
@@ -16,22 +14,19 @@ const sourceLabels: Record<string, string> = {
 };
 
 export async function getStaticPaths() {
-  const changelogs = await getCollection('changelogs');
+  const entries = getAllChangelogEntries();
   const packages = new Map<string, { source: string; pkg: string }>();
 
-  for (const entry of changelogs) {
-    const filePath = entry.filePath || '';
-    const parsed = parseChangelogPath(filePath || entry.id);
-
+  for (const entry of entries) {
     // Skip github - handled by separate route
-    if (parsed.source === 'github') continue;
+    if (entry.source === 'github') continue;
 
-    // Skip scoped packages - handled by separate route (use filePath since ID strips @)
-    if (filePath.match(/changelogs\/\w+\/@[^/]+\//)) continue;
+    // Skip scoped packages - handled by separate route
+    if (entry.package.startsWith('@')) continue;
 
-    const key = `${parsed.source}/${parsed.pkg}`;
+    const key = `${entry.source}/${entry.package}`;
     if (!packages.has(key)) {
-      packages.set(key, { source: parsed.source, pkg: parsed.pkg });
+      packages.set(key, { source: entry.source, pkg: entry.package });
     }
   }
 
@@ -41,24 +36,19 @@ export async function getStaticPaths() {
 }
 
 const { source, pkg } = Astro.params;
-const changelogs = await getCollection('changelogs', (entry) => {
-  const parsed = parseChangelogPath(entry.filePath ?? entry.id);
-  return parsed.source === source && parsed.pkg === pkg;
-});
+const changelogs = getChangelogsForPackage(source!, pkg!);
 
 // Sort versions (newest first)
 const allVersions = sortChangelogEntriesByVersion(changelogs);
-const versionList = allVersions.map(
-  (e) => parseChangelogPath(e.filePath ?? e.id).version,
-);
+const versionList = allVersions.map((e) => e.version);
 
 // Pre-render all entries for client-side filtering
 const renderedEntries = await Promise.all(
   allVersions.map(async (entry) => {
-    const { Content } = await render(entry);
+    const html = await renderMarkdown(entry.markdown);
     return {
-      version: parseChangelogPath(entry.filePath ?? entry.id).version,
-      Content,
+      version: entry.version,
+      html,
     };
   }),
 );
@@ -118,7 +108,7 @@ const packageLinks =
   <p id="version-summary" class="version-summary" style="display: none;"></p>
 
   <div id="changelog-list" class="changelog-list">
-    {renderedEntries.map(({ version, Content }) => (
+    {renderedEntries.map(({ version, html }) => (
       <div class="changelog-entry" data-version={version} style="display: none;">
         <div class="changelog-header">
           <a href={route(`/${source}/${pkg}/${version}/`)} class="version-link">
@@ -126,7 +116,7 @@ const packageLinks =
           </a>
         </div>
         <div class="changelog-content">
-          <Content />
+          <Fragment set:html={html} />
         </div>
       </div>
     ))}

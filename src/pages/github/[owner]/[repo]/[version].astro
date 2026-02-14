@@ -1,34 +1,33 @@
 ---
-import { getCollection, render } from 'astro:content';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import CopyButton from '../../../../components/CopyButton.astro';
-import { parseChangelogPath } from '../../../../changelog/utils';
 import { route } from '../../../../utils/route';
+import { getAllChangelogEntries } from '../../../../db/queries';
+import { renderMarkdown } from '../../../../db/markdown';
 
 export async function getStaticPaths() {
-  const changelogs = await getCollection('changelogs', ({ id }) =>
-    id.startsWith('github/'),
-  );
+  const entries = getAllChangelogEntries();
 
-  return changelogs.map((entry) => {
-    const parsed = parseChangelogPath(entry.filePath ?? entry.id);
-    // pkg is "owner/repo" for GitHub
-    const [owner, repo] = parsed.pkg.split('/');
+  return entries
+    .filter((entry) => entry.source === 'github')
+    .map((entry) => {
+      // package is "owner/repo" for GitHub
+      const [owner, repo] = entry.package.split('/');
 
-    return {
-      params: {
-        owner,
-        repo,
-        version: parsed.version,
-      },
-      props: { entry },
-    };
-  });
+      return {
+        params: {
+          owner,
+          repo,
+          version: entry.version,
+        },
+        props: { entry },
+      };
+    });
 }
 
 const { owner, repo, version } = Astro.params;
 const { entry } = Astro.props;
-const { Content } = await render(entry);
+const html = await renderMarkdown(entry.markdown);
 
 const fullName = `${owner}/${repo}`;
 ---
@@ -45,11 +44,11 @@ const fullName = `${owner}/${repo}`;
 		<a href={route(`/github/${owner}/${repo}/`)} class="package-name">{fullName}</a>
 		<span class="separator">/</span>
 		<span class="version">{version}</span>
-		{entry.body && <CopyButton content={entry.body} />}
+		<CopyButton content={entry.markdown} />
 	</p>
 
 	<div class="changelog-content">
-		<Content />
+		<Fragment set:html={html} />
 	</div>
 </StarlightPage>
 

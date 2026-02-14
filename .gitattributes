@@ -1,0 +1,4 @@
+data/changelogs.db filter=lfs diff=lfs merge=lfs -text
+*.db-shm -filter -diff -merge -text
+*.db-wal -filter -diff -merge -text
+*.db-journal -filter -diff -merge -text

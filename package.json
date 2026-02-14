@@ -13,18 +13,27 @@
     "astro": "astro",
     "lint": "biome check",
     "format": "biome format --write",
-    "changelog": "tsx src/tools/cli.ts"
+    "changelog": "tsx src/tools/cli.ts",
+    "migrate": "tsx src/tools/migrate-to-db.ts"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.37.5",
     "@commander-js/extra-typings": "^14.0.0",
     "astro": "^5.17.1",
+    "better-sqlite3": "^12.6.2",
     "dotenv": "^17.2.3",
+    "rehype-raw": "^7.0.0",
+    "rehype-stringify": "^10.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
     "semver": "^7.7.3",
-    "sharp": "^0.34.5"
+    "sharp": "^0.34.5",
+    "unified": "^11.0.5"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.13",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/semver": "^7.7.1",
     "node-addon-api": "^8.5.0",
     "node-gyp": "^12.2.0",

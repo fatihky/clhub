@@ -1,9 +1,9 @@
 ---
-import { getCollection, render } from 'astro:content';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import CopyButton from '../../../../components/CopyButton.astro';
-import { parseChangelogPath } from '../../../../changelog/utils';
 import { route } from '../../../../utils/route';
+import { getAllChangelogEntries } from '../../../../db/queries';
+import { renderMarkdown } from '../../../../db/markdown';
 
 const sourceLabels: Record<string, string> = {
   crates: 'Crates.io',
@@ -13,30 +13,26 @@ const sourceLabels: Record<string, string> = {
 };
 
 export async function getStaticPaths() {
-  const changelogs = await getCollection('changelogs');
+  const entries = getAllChangelogEntries();
 
-  return changelogs
+  return entries
     .filter((entry) => {
-      // Use filePath to detect scoped packages (ID strips @ symbol)
-      const filePath = entry.filePath || '';
       // Skip github - handled by separate route
-      if (filePath.includes('/github/')) return false;
+      if (entry.source === 'github') return false;
       // Only handle scoped packages
-      return filePath.match(/changelogs\/\w+\/@[^/]+\/[^/]+\//);
+      return entry.package.startsWith('@');
     })
     .map((entry) => {
-      const filePath = entry.filePath || '';
-      const parsed = parseChangelogPath(filePath);
       // Extract org from scoped package name (@org/pkg)
-      const scopedMatch = parsed.pkg.match(/^@([^/]+)\/(.+)$/);
+      const scopedMatch = entry.package.match(/^@([^/]+)\/(.+)$/);
       if (!scopedMatch) return null;
 
       return {
         params: {
-          source: parsed.source,
+          source: entry.source,
           org: scopedMatch[1],
           pkg: scopedMatch[2],
-          version: parsed.version,
+          version: entry.version,
         },
         props: { entry },
       };
@@ -47,7 +43,7 @@ export async function getStaticPaths() {
 const { source, org, pkg, version } = Astro.params;
 const fullPkg = `@${org}/${pkg}`;
 const { entry } = Astro.props;
-const { Content } = await render(entry);
+const html = await renderMarkdown(entry.markdown);
 
 const sourceLabel = sourceLabels[source!] || source;
 ---
@@ -64,11 +60,11 @@ const sourceLabel = sourceLabels[source!] || source;
     <a href={route(`/${source}/@${org}/${pkg}/`)} class="package-name">{fullPkg}</a>
     <span class="separator">/</span>
     <span class="version">{version}</span>
-    {entry.body && <CopyButton content={entry.body} />}
+    <CopyButton content={entry.markdown} />
   </p>
 
   <div class="changelog-content">
-    <Content />
+    <Fragment set:html={html} />
   </div>
 </StarlightPage>
 

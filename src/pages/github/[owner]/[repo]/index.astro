@@ -1,24 +1,22 @@
 ---
-import { getCollection } from 'astro:content';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import {
-  parseChangelogPath,
   sortChangelogEntriesByVersion,
   getChangelogSize,
   isPreRelease,
 } from '../../../../changelog/utils';
 import { route } from '../../../../utils/route';
+import { getAllChangelogEntries, getChangelogsForPackage } from '../../../../db/queries';
 
 export async function getStaticPaths() {
-  const changelogs = await getCollection('changelogs', ({ id }) =>
-    id.startsWith('github/'),
-  );
+  const entries = getAllChangelogEntries();
   const repos = new Map<string, { owner: string; repo: string }>();
 
-  for (const entry of changelogs) {
-    const parsed = parseChangelogPath(entry.filePath ?? entry.id);
-    // pkg is "owner/repo" for GitHub
-    const [owner, repo] = parsed.pkg.split('/');
+  for (const entry of entries) {
+    if (entry.source !== 'github') continue;
+
+    // package is "owner/repo" for GitHub
+    const [owner, repo] = entry.package.split('/');
     if (owner && repo) {
       const key = `${owner.toLowerCase()}/${repo.toLowerCase()}`;
       if (!repos.has(key)) {
@@ -34,13 +32,7 @@ export async function getStaticPaths() {
 
 const { owner, repo } = Astro.params;
 const fullName = `${owner}/${repo}`;
-const changelogs = await getCollection('changelogs', (entry) => {
-  const parsed = parseChangelogPath(entry.filePath ?? entry.id);
-  return (
-    parsed.source === 'github' &&
-    parsed.pkg.toLowerCase() === fullName.toLowerCase()
-  );
-});
+const changelogs = getChangelogsForPackage('github', fullName);
 
 // Sort versions (newest first)
 const versions = sortChangelogEntriesByVersion(changelogs);
@@ -92,16 +84,15 @@ const repoUrl = `https://github.com/${owner}/${repo}`;
   <div class="versions-list" id="versions-list">
     {
       versions.map((entry) => {
-        const version = parseChangelogPath(entry.filePath ?? entry.id).version;
-        const size = getChangelogSize(entry.filePath);
+        const size = getChangelogSize(entry.size);
         return (
           <a
-            href={route(`/github/${owner}/${repo}/${version}/`)}
+            href={route(`/github/${owner}/${repo}/${entry.version}/`)}
             class="version-item"
-            data-version={version}
-            data-prerelease={isPreRelease(version) ? "true" : undefined}
+            data-version={entry.version}
+            data-prerelease={isPreRelease(entry.version) ? "true" : undefined}
           >
-            <span class="version">{version}</span>
+            <span class="version">{entry.version}</span>
             {size && <span class="size">{size}</span>}
           </a>
         );
