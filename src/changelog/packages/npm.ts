@@ -41,6 +41,10 @@ export const npmPackages = packageMapToArray(pm, {
     repositoryUrl: 'https://github.com/withastro/astro',
     changelogFetcherOptions: { tagPrefix: 'astro@' },
   },
+  'better-sqlite3': {
+    repositoryUrl: 'https://github.com/WiseLibs/better-sqlite3',
+    changelogFetcherOptions: { tagPrefix: 'v' },
+  },
   chokidar: {
     repositoryUrl: 'https://github.com/paulmillr/chokidar',
   },
