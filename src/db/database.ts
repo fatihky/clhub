@@ -63,6 +63,7 @@ function ensureSchema(db: Database.Database): void {
  */
 export function closeDatabase(): void {
   if (db) {
+    db.exec('VACUUM;');
     db.close();
     db = null;
   }
