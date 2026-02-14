@@ -45,6 +45,11 @@ export const npmPackages = packageMapToArray(pm, {
     repositoryUrl: 'https://github.com/WiseLibs/better-sqlite3',
     changelogFetcherOptions: { tagPrefix: 'v' },
   },
+  chai: {
+    repositoryUrl: 'https://github.com/chaijs/chai',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: { tagPrefix: 'v' },
+  },
   chokidar: {
     repositoryUrl: 'https://github.com/paulmillr/chokidar',
   },
