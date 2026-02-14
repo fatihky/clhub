@@ -41,6 +41,10 @@ export const npmPackages = packageMapToArray(pm, {
     repositoryUrl: 'https://github.com/withastro/astro',
     changelogFetcherOptions: { tagPrefix: 'astro@' },
   },
+  corepack: {
+    repositoryUrl: 'https://github.com/nodejs/corepack',
+    changelogFetcherOptions: { tagPrefix: 'v' },
+  },
   dotenv: {
     repositoryUrl: 'https://github.com/motdotla/dotenv',
     changelogFetcherOptions: { type: 'githubChangelogFile' },

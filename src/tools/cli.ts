@@ -1,24 +1,24 @@
 import 'dotenv/config';
 
-import path from 'node:path';
 import { Command } from '@commander-js/extra-typings';
 import { getChangelogFetcher } from '../changelog/fetchers';
 import { createLogger, type Logger } from '../changelog/logger';
 import { PACKAGE_MANAGERS, Package } from '../changelog/package';
 import { allPackages } from '../changelog/packages';
 import {
-	insertChangelog,
-	changelogExists,
-	isVersionNotFound,
-	markVersionNotFound,
+  changelogExists,
+  insertChangelog,
+  isVersionNotFound,
+  markVersionNotFound,
 } from '../db/changelog-repository';
+import { closeDatabase } from '../db/database';
 
 const program = new Command();
 
 program
-	.name('changelog')
-	.description('Fetch changelogs for packages')
-	.version('0.0.1');
+  .name('changelog')
+  .description('Fetch changelogs for packages')
+  .version('0.0.1');
 
 const fetchCommand = new Command('fetch')
   .description('Fetch changelog for a package')
@@ -114,6 +114,7 @@ const fetchCommand = new Command('fetch')
 
     if (save) {
       insertChangelog(dir, pkg.name, version, changelog.text);
+      closeDatabase();
       console.log(`\nChangelog saved to database`);
     }
   });
@@ -238,10 +239,7 @@ const fetchAllCommand = new Command('fetch-all')
   )
   .option('-r, --repo <url>', 'Repository URL (optional, overrides lookup)')
   .option('-l, --limit <number>', 'Maximum number of versions to fetch')
-  .option(
-    '-s, --save',
-    'Save changelogs to database',
-  )
+  .option('-s, --save', 'Save changelogs to database')
   .option('--verbose', 'Enable verbose logging')
   .action(async (options) => {
     const {
@@ -401,6 +399,10 @@ const fetchAllCommand = new Command('fetch-all')
       );
     }
 
+    if (save) {
+      closeDatabase();
+    }
+
     if (skippedCount > 0) {
       console.log(`\nSkipped ${skippedCount} version(s) (already downloaded).`);
     }
@@ -540,10 +542,7 @@ const fetchSourceCommand = new Command('fetch-source')
     'Package manager (npm, pypi, crates, rubygems, github)',
   )
   .option('-l, --limit <number>', 'Maximum number of versions per package')
-  .option(
-    '-s, --save',
-    'Save changelogs to database',
-  )
+  .option('-s, --save', 'Save changelogs to database')
   .option('--verbose', 'Enable verbose logging')
   .action(async (options) => {
     const { manager, limit, save, verbose = false } = options;
@@ -602,6 +601,10 @@ const fetchSourceCommand = new Command('fetch-source')
       if (i < packages.length - 1) {
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
+    }
+
+    if (save) {
+      closeDatabase();
     }
 
     console.log('\n--- Final Summary ---');
