@@ -41,6 +41,9 @@ export const npmPackages = packageMapToArray(pm, {
     repositoryUrl: 'https://github.com/withastro/astro',
     changelogFetcherOptions: { tagPrefix: 'astro@' },
   },
+  chokidar: {
+    repositoryUrl: 'https://github.com/paulmillr/chokidar',
+  },
   corepack: {
     repositoryUrl: 'https://github.com/nodejs/corepack',
     changelogFetcherOptions: { tagPrefix: 'v' },
