@@ -101,6 +101,11 @@ export const npmPackages = packageMapToArray(pm, {
     repositoryUrl: 'https://github.com/npm/cli',
     changelogFetcherOptions: { tagPrefix: 'v' },
   },
+  'npm-check-updates': {
+    repositoryUrl: 'https://github.com/raineorshine/npm-check-updates',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: { tagPrefix: 'v' },
+  },
   pagefind: {
     repositoryUrl: 'https://github.com/pagefind/pagefind',
     changelogFetcherOptions: { tagPrefix: 'v' },
