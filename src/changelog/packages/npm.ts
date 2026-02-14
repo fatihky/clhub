@@ -160,6 +160,7 @@ export const npmPackages = packageMapToArray(pm, {
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
     changelogFetcherOptions: { tagPrefix: 'v' },
   },
+  stylelint: { repositoryUrl: 'https://github.com/stylelint/stylelint' },
   superstruct: {
     repositoryUrl: 'https://github.com/ianstormtaylor/superstruct',
     changelogFetcherOptions: { tagPrefix: 'v' },
