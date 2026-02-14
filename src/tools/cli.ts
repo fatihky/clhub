@@ -30,7 +30,7 @@ const fetchCommand = new Command('fetch')
     'npm',
   )
   .option('-r, --repo <url>', 'Repository URL (optional, overrides lookup)')
-  .option('-s, --save', 'Save changelog to [manager]/[package]/[version].md')
+  .option('-s, --save', 'Save changelog to database')
   .option('--verbose', 'Enable verbose logging')
   .action(async (options) => {
     const {
@@ -240,7 +240,7 @@ const fetchAllCommand = new Command('fetch-all')
   .option('-l, --limit <number>', 'Maximum number of versions to fetch')
   .option(
     '-s, --save',
-    'Save changelogs to changelogs/{manager}/{package}/{version}.md',
+    'Save changelogs to database',
   )
   .option('--verbose', 'Enable verbose logging')
   .action(async (options) => {
@@ -542,7 +542,7 @@ const fetchSourceCommand = new Command('fetch-source')
   .option('-l, --limit <number>', 'Maximum number of versions per package')
   .option(
     '-s, --save',
-    'Save changelogs to changelogs/{manager}/{package}/{version}.md',
+    'Save changelogs to database',
   )
   .option('--verbose', 'Enable verbose logging')
   .action(async (options) => {
