@@ -109,6 +109,10 @@ export const npmPackages = packageMapToArray(pm, {
     repositoryUrl: 'https://github.com/lucide-icons/lucide',
     versionFetcherOptions: versionFetcherOptionPresets.excludePreReleases,
   },
+  mocha: {
+    repositoryUrl: 'https://github.com/mochajs/mocha',
+    changelogFetcherOptions: { tagPrefix: 'v' },
+  },
   negotiator: {
     repositoryUrl: 'https://github.com/jshttp/negotiator',
     changelogFetcherOptions: { tagPrefix: 'v' },
