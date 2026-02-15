@@ -11,6 +11,9 @@ import {
 export default defineConfig({
   site: 'https://fatihky.github.io/',
   base: process.env.NODE_ENV === 'production' ? '/clhub' : '',
+  build: {
+    inlineStylesheets: 'never',
+  },
   integrations: [
     starlight({
       title: 'Changelog Hub',
