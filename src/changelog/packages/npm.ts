@@ -97,6 +97,10 @@ export const npmPackages = packageMapToArray(pm, {
     repositoryUrl: 'https://github.com/SBoudrias/Inquirer.js',
     changelogFetcherOptions: { tagPrefix: 'inquirer@' },
   },
+  'js-yaml': {
+    repositoryUrl: 'https://github.com/nodeca/js-yaml',
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
+  },
   lodash: {
     repositoryUrl: 'https://github.com/lodash/lodash',
     changelogFetcherOptions: {
