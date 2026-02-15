@@ -52,6 +52,7 @@ const sourceLabel = sourceLabels[source!] || source;
   frontmatter={{
     title: `${fullPkg} ${version}`,
     description: `Changelog for ${fullPkg} version ${version} from ${sourceLabel}`,
+    pagefind: false, // version pages should not be indexed with pagefind
   }}
 >
   <p class="breadcrumb">

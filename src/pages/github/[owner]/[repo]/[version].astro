@@ -36,6 +36,7 @@ const fullName = `${owner}/${repo}`;
 	frontmatter={{
 		title: `${fullName} ${version}`,
 		description: `Release notes for ${fullName} version ${version} from GitHub`,
+		pagefind: false, // version pages should not be indexed with pagefind
 	}}
 >
 	<p class="breadcrumb">
