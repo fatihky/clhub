@@ -324,4 +324,9 @@ export const npmPackages = packageMapToArray(pm, {
     },
     changelogFetcherOptions: { tagPrefix: 'v' },
   },
+  '@biomejs/biome': {
+    repositoryUrl: 'https://github.com/biomejs/biome',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: { tagPrefix: '@biomejs/biome@' },
+  },
 });
