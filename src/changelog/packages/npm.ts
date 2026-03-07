@@ -189,6 +189,11 @@ export const npmPackages = packageMapToArray(pm, {
       ],
     },
   },
+  recharts: {
+    repositoryUrl: 'https://github.com/recharts/recharts',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: { tagPrefix: 'v' },
+  },
   semver: {
     repositoryUrl: 'https://github.com/npm/node-semver',
     changelogFetcherOptions: { tagPrefix: 'v' },
