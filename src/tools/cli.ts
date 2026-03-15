@@ -615,10 +615,88 @@ const fetchSourceCommand = new Command('fetch-source')
     console.log('\nDone!');
   });
 
+const fetchProvidersCommand = new Command('fetch-providers')
+  .description('Fetch changelogs for all packages from all providers')
+  .option('-l, --limit <number>', 'Maximum number of versions per package')
+  .option('-s, --save', 'Save changelogs to database')
+  .option('--verbose', 'Enable verbose logging')
+  .action(async (options) => {
+    const { limit, save, verbose = false } = options;
+    const logger = createLogger(verbose);
+
+    console.log('Fetching changelogs for all packages from all providers...\n');
+
+    const maxVersions = limit ? Number.parseInt(limit, 10) : undefined;
+
+    let totalFetched = 0;
+    let totalSkipped = 0;
+    let totalNotFound = 0;
+    let totalPackages = 0;
+
+    // Process each package manager
+    for (const [managerKey, pm] of Object.entries(PACKAGE_MANAGERS)) {
+      const packages = allPackages.filter(
+        (p) => p.packageManager.dirname === pm.dirname,
+      );
+
+      if (packages.length === 0) {
+        console.log(`No packages configured for ${pm.name}. Skipping...\n`);
+        continue;
+      }
+
+      console.log(`Processing ${pm.name} (${packages.length} packages)...\n`);
+
+      // Process each package for this manager
+      for (let i = 0; i < packages.length; i++) {
+        const pkg = packages[i];
+        totalPackages++;
+        console.log(
+          `[${totalPackages}] Processing ${pkg.name} from ${pm.name}...`,
+        );
+        console.log(`  Repository: ${pkg.repositoryUrl}`);
+
+        const result = await fetchAllVersionsForPackage(pkg, {
+          save: save ?? false,
+          verbose,
+          limit: maxVersions,
+          logger,
+        });
+
+        totalFetched += result.fetched;
+        totalSkipped += result.skipped;
+        totalNotFound += result.notFound;
+
+        console.log(
+          `  Summary: ${result.fetched} fetched, ${result.skipped} skipped, ${result.notFound} not found\n`,
+        );
+
+        // Add delay between packages to avoid rate limiting
+        if (i < packages.length - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
+      }
+
+      // Add delay between package managers to avoid rate limiting
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+    }
+
+    if (save) {
+      closeDatabase();
+    }
+
+    console.log('\n--- Final Summary ---');
+    console.log(`Total packages processed: ${totalPackages}`);
+    console.log(`Total fetched: ${totalFetched}`);
+    console.log(`Total skipped: ${totalSkipped}`);
+    console.log(`Total not found: ${totalNotFound}`);
+    console.log('\nDone!');
+  });
+
 program.addCommand(fetchCommand);
 program.addCommand(listCommand);
 program.addCommand(versionsCommand);
 program.addCommand(fetchAllCommand);
 program.addCommand(fetchSourceCommand);
+program.addCommand(fetchProvidersCommand);
 
 program.parse();
