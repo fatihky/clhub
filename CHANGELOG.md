@@ -1,5 +1,9 @@
 ## [unreleased]
 
+## [0.2.0] - 2026-03-15
+
+- added `fetch-providers` command
+
 ### 🚀 Features
 
 - Add hide pre-releases toggle with localStorage persistence
