@@ -3,7 +3,10 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import { sortChangelogEntriesByVersion } from '../../../changelog/utils';
 import { getPackageLinks } from '../../../changelog/packages';
 import { route } from '../../../utils/route';
-import { getAllChangelogEntries, getChangelogsForPackage } from '../../../db/queries';
+import {
+  getAllChangelogEntries,
+  getChangelogsForPackage,
+} from '../../../db/queries';
 import { renderMarkdown } from '../../../db/markdown';
 
 const sourceLabels: Record<string, string> = {

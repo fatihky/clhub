@@ -7,7 +7,10 @@ import {
 } from '../../../../changelog/utils';
 import { getPackageLinks } from '../../../../changelog/packages';
 import { route } from '../../../../utils/route';
-import { getAllChangelogEntries, getChangelogsForPackage } from '../../../../db/queries';
+import {
+  getAllChangelogEntries,
+  getChangelogsForPackage,
+} from '../../../../db/queries';
 
 const sourceLabels: Record<string, string> = {
   crates: 'Crates.io',

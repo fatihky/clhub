@@ -6,7 +6,10 @@ import {
   isPreRelease,
 } from '../../../../changelog/utils';
 import { route } from '../../../../utils/route';
-import { getAllChangelogEntries, getChangelogsForPackage } from '../../../../db/queries';
+import {
+  getAllChangelogEntries,
+  getChangelogsForPackage,
+} from '../../../../db/queries';
 
 export async function getStaticPaths() {
   const entries = getAllChangelogEntries();

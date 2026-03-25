@@ -2,28 +2,28 @@ import { gt, lte, prerelease, valid } from 'semver';
 import { compareVersionsDescending } from './version-fetchers/version-comparator';
 
 interface ChangelogEntry {
-	version: string;
+  version: string;
 }
 
 /**
  * Extracts the version from a changelog entry.
  */
 export function extractVersionFromEntry(entry: ChangelogEntry): string {
-	return entry.version;
+  return entry.version;
 }
 
 /**
  * Sorts changelog entries by version in descending order.
  */
 export function sortChangelogEntriesByVersion<T extends ChangelogEntry>(
-	entries: T[],
+  entries: T[],
 ): T[] {
-	return entries.sort((a, b) => {
-		return compareVersionsDescending(
-			{ version: a.version },
-			{ version: b.version },
-		);
-	});
+  return entries.sort((a, b) => {
+    return compareVersionsDescending(
+      { version: a.version },
+      { version: b.version },
+    );
+  });
 }
 
 /**
@@ -64,7 +64,6 @@ export function getVersionsInRange<T extends ChangelogEntry>(
   });
 }
 
-
 /**
  * Formats a file size in bytes to a human-readable string.
  * Uses bytes for sizes < 1KB, KB for sizes >= 1KB.
@@ -88,7 +87,7 @@ export function formatFileSize(bytes: number): string {
  * Takes byte size directly instead of reading from file.
  */
 export function getChangelogSize(bytes: number): string {
-	return formatFileSize(bytes);
+  return formatFileSize(bytes);
 }
 
 /**

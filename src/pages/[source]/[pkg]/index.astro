@@ -1,41 +1,44 @@
 ---
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import {
-	sortChangelogEntriesByVersion,
-	getChangelogSize,
-	isPreRelease,
+  sortChangelogEntriesByVersion,
+  getChangelogSize,
+  isPreRelease,
 } from '../../../changelog/utils';
 import { getPackageLinks } from '../../../changelog/packages';
 import { route } from '../../../utils/route';
-import { getAllChangelogEntries, getChangelogsForPackage } from '../../../db/queries';
+import {
+  getAllChangelogEntries,
+  getChangelogsForPackage,
+} from '../../../db/queries';
 
 const sourceLabels: Record<string, string> = {
-	crates: 'Crates.io',
-	npm: 'npm',
-	pypi: 'PyPI',
-	rubygems: 'RubyGems',
+  crates: 'Crates.io',
+  npm: 'npm',
+  pypi: 'PyPI',
+  rubygems: 'RubyGems',
 };
 
 export async function getStaticPaths() {
-	const entries = getAllChangelogEntries();
-	const packages = new Map<string, { source: string; pkg: string }>();
+  const entries = getAllChangelogEntries();
+  const packages = new Map<string, { source: string; pkg: string }>();
 
-	for (const entry of entries) {
-		// Skip github - handled by separate route
-		if (entry.source === 'github') continue;
+  for (const entry of entries) {
+    // Skip github - handled by separate route
+    if (entry.source === 'github') continue;
 
-		// Skip scoped packages - handled by separate route
-		if (entry.package.startsWith('@')) continue;
+    // Skip scoped packages - handled by separate route
+    if (entry.package.startsWith('@')) continue;
 
-		const key = `${entry.source}/${entry.package}`;
-		if (!packages.has(key)) {
-			packages.set(key, { source: entry.source, pkg: entry.package });
-		}
-	}
+    const key = `${entry.source}/${entry.package}`;
+    if (!packages.has(key)) {
+      packages.set(key, { source: entry.source, pkg: entry.package });
+    }
+  }
 
-	return [...packages.values()].map(({ source, pkg }) => ({
-		params: { source, pkg },
-	}));
+  return [...packages.values()].map(({ source, pkg }) => ({
+    params: { source, pkg },
+  }));
 }
 
 const { source, pkg } = Astro.params;
@@ -45,7 +48,8 @@ const changelogs = getChangelogsForPackage(source!, pkg!);
 const versions = sortChangelogEntriesByVersion(changelogs);
 
 const sourceLabel = source ? (sourceLabels[source] ?? source) : 'Unknown';
-const packageLinks = source && pkg ? await getPackageLinks(source, pkg) : undefined;
+const packageLinks =
+  source && pkg ? await getPackageLinks(source, pkg) : undefined;
 ---
 
 <StarlightPage

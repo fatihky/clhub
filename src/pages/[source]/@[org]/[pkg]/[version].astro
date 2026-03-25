@@ -4,6 +4,7 @@ import CopyButton from '../../../../components/CopyButton.astro';
 import { route } from '../../../../utils/route';
 import { getAllChangelogEntries } from '../../../../db/queries';
 import { renderMarkdown } from '../../../../db/markdown';
+import { getChangelogUrl } from '../../../../changelog/packages';
 
 const sourceLabels: Record<string, string> = {
   crates: 'Crates.io',
@@ -46,6 +47,7 @@ const { entry } = Astro.props;
 const html = await renderMarkdown(entry.markdown);
 
 const sourceLabel = sourceLabels[source!] || source;
+const changelogUrl = getChangelogUrl(source!, fullPkg!, version!);
 ---
 
 <StarlightPage
@@ -55,14 +57,21 @@ const sourceLabel = sourceLabels[source!] || source;
     pagefind: false, // version pages should not be indexed with pagefind
   }}
 >
-  <p class="breadcrumb">
-    <a href={route(`/${source}/`)} class="badge">{sourceLabel}</a>
-    <span class="separator">/</span>
-    <a href={route(`/${source}/@${org}/${pkg}/`)} class="package-name">{fullPkg}</a>
-    <span class="separator">/</span>
-    <span class="version">{version}</span>
+  <div class="header-container">
+    <p class="breadcrumb">
+      <a href={route(`/${source}/`)} class="badge">{sourceLabel}</a>
+      <span class="separator">/</span>
+      <a href={route(`/${source}/@${org}/${pkg}/`)} class="package-name">{fullPkg}</a>
+      <span class="separator">/</span>
+      <span class="version">{version}</span>
+      {changelogUrl && (
+        <a href={changelogUrl} target="_blank" rel="noopener noreferrer" class="source-link-inline">
+          source <span class="arrow">↗</span>
+        </a>
+      )}
+    </p>
     <CopyButton content={entry.markdown} />
-  </p>
+  </div>
 
   <div class="changelog-content">
     <Fragment set:html={html} />
@@ -106,5 +115,35 @@ const sourceLabel = sourceLabels[source!] || source;
   .version {
     font-family: var(--sl-font-mono);
     color: var(--sl-color-gray-2);
+  }
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 0;
+  }
+  .source-link-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--sl-color-text);
+    text-decoration: none;
+    font-size: 0.875rem;
+    margin-left: 0.5rem;
+  }
+  .source-link-inline:hover {
+    color: var(--sl-color-accent);
+  }
+  .arrow {
+    font-size: 0.75rem;
   }
 </style>

@@ -4,33 +4,34 @@ import CopyButton from '../../../components/CopyButton.astro';
 import { route } from '../../../utils/route';
 import { getAllChangelogEntries } from '../../../db/queries';
 import { renderMarkdown } from '../../../db/markdown';
+import { getChangelogUrl } from '../../../changelog/packages';
 
 const sourceLabels: Record<string, string> = {
-	crates: 'Crates.io',
-	npm: 'npm',
-	pypi: 'PyPI',
-	rubygems: 'RubyGems',
+  crates: 'Crates.io',
+  npm: 'npm',
+  pypi: 'PyPI',
+  rubygems: 'RubyGems',
 };
 
 export async function getStaticPaths() {
-	const entries = getAllChangelogEntries();
+  const entries = getAllChangelogEntries();
 
-	return entries
-		.filter((entry) => {
-			// Skip github - handled by separate route
-			if (entry.source === 'github') return false;
-			// Skip scoped packages - handled by separate route
-			if (entry.package.startsWith('@')) return false;
-			return true;
-		})
-		.map((entry) => ({
-			params: {
-				source: entry.source,
-				pkg: entry.package,
-				version: entry.version,
-			},
-			props: { entry },
-		}));
+  return entries
+    .filter((entry) => {
+      // Skip github - handled by separate route
+      if (entry.source === 'github') return false;
+      // Skip scoped packages - handled by separate route
+      if (entry.package.startsWith('@')) return false;
+      return true;
+    })
+    .map((entry) => ({
+      params: {
+        source: entry.source,
+        pkg: entry.package,
+        version: entry.version,
+      },
+      props: { entry },
+    }));
 }
 
 const { source, pkg, version } = Astro.params;
@@ -38,6 +39,7 @@ const { entry } = Astro.props;
 const html = await renderMarkdown(entry.markdown);
 
 const sourceLabel = sourceLabels[source!] || source;
+const changelogUrl = getChangelogUrl(source!, pkg!, version!);
 ---
 
 <StarlightPage
@@ -47,14 +49,21 @@ const sourceLabel = sourceLabels[source!] || source;
 		pagefind: false, // version pages should not be indexed with pagefind
 	}}
 >
-	<p class="breadcrumb">
-		<a href={route(`/${source}/`)} class="badge">{sourceLabel}</a>
-		<span class="separator">/</span>
-		<a href={route(`/${source}/${pkg}/`)} class="package-name">{pkg}</a>
-		<span class="separator">/</span>
-		<span class="version">{version}</span>
-		<CopyButton content={entry.markdown} />
-	</p>
+  <div class="header-container">
+    <p class="breadcrumb">
+      <a href={route(`/${source}/`)} class="badge">{sourceLabel}</a>
+      <span class="separator">/</span>
+      <a href={route(`/${source}/${pkg}/`)} class="package-name">{pkg}</a>
+      <span class="separator">/</span>
+      <span class="version">{version}</span>
+      {changelogUrl && (
+        <a href={changelogUrl} target="_blank" rel="noopener noreferrer" class="source-link-inline">
+          source <span class="arrow">↗</span>
+        </a>
+      )}
+    </p>
+    <CopyButton content={entry.markdown} />
+  </div>
 
 	<div class="changelog-content">
 		<Fragment set:html={html} />
@@ -95,8 +104,38 @@ const sourceLabel = sourceLabels[source!] || source;
 	.package-name:hover {
 		color: var(--sl-color-accent);
 	}
-	.version {
-		font-family: var(--sl-font-mono);
-		color: var(--sl-color-gray-2);
-	}
+  .version {
+    font-family: var(--sl-font-mono);
+    color: var(--sl-color-gray-2);
+  }
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 0;
+  }
+  .source-link-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--sl-color-text);
+    text-decoration: none;
+    font-size: 0.875rem;
+    margin-left: 0.5rem;
+  }
+  .source-link-inline:hover {
+    color: var(--sl-color-accent);
+  }
+  .arrow {
+    font-size: 0.75rem;
+  }
 </style>
