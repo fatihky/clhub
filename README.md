@@ -22,7 +22,7 @@ Want to add a new package? Here's how:
 
 2. **Edit the package file** at `src/changelog/packages/{registry}.ts`
 
-3. **Add your package:**
+3. **Add your package** (maintaining alphabetical order by package name):
    ```typescript
    'package-name': {
      repositoryUrl: 'https://github.com/owner/repo',
