@@ -21,11 +21,12 @@ npm run changelog    # CLI for changelog management (tsx src/tools/cli.ts)
 
 **CLI commands:**
 ```bash
-npm run changelog fetch <source> <package> <version>  # Fetch single changelog
-npm run changelog list                                 # List configured packages
-npm run changelog versions <source> <package>          # List all versions
-npm run changelog fetch-all <source> <package>         # Batch fetch all versions
-npm run changelog fetch-source -m <source>             # Fetch all packages from source
+npm run changelog -- list                                                      # List all configured packages
+npm run changelog -- versions -m <manager> -p <package>                        # List all versions (manager: npm, pypi, crates, rubygems)
+npm run changelog -- fetch -m <manager> -p <package> -v <version>             # Fetch single changelog
+npm run changelog -- fetch-all -m <manager> -p <package>                       # Batch fetch all versions
+npm run changelog -- fetch-source -m <manager>                                 # Fetch all packages from a source
+npm run changelog -- fetch-providers                                           # Fetch all packages from all sources
 ```
 
 ## Architecture
