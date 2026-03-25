@@ -301,10 +301,6 @@ export const npmPackages = packageMapToArray(pm, {
   },
   'tailwind-merge': {
     repositoryUrl: 'https://github.com/dcastil/tailwind-merge',
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-      changelogFilename: 'CHANGELOG.md',
-    },
   },
   tailwindcss: {
     repositoryUrl: 'https://github.com/tailwindlabs/tailwindcss',
