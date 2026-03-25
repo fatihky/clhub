@@ -301,6 +301,7 @@ export const npmPackages = packageMapToArray(pm, {
   },
   'tailwind-merge': {
     repositoryUrl: 'https://github.com/dcastil/tailwind-merge',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
   },
   tailwindcss: {
     repositoryUrl: 'https://github.com/tailwindlabs/tailwindcss',
