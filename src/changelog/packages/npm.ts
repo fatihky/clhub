@@ -11,7 +11,10 @@ export const npmPackages = packageMapToArray(pm, {
   },
   '@fingerprintjs/fingerprintjs': {
     repositoryUrl: 'https://github.com/fingerprintjs/fingerprintjs',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   '@formatjs/intl-localematcher': {
     repositoryUrl: 'https://github.com/formatjs/formatjs',
@@ -27,11 +30,17 @@ export const npmPackages = packageMapToArray(pm, {
   },
   '@orama/orama': {
     repositoryUrl: 'https://github.com/oramasearch/orama',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   '@standard-schema/spec': {
     repositoryUrl: 'https://github.com/standard-schema/standard-schema',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   antd: {
     repositoryUrl: 'https://github.com/ant-design/ant-design',
@@ -43,12 +52,18 @@ export const npmPackages = packageMapToArray(pm, {
   },
   'better-sqlite3': {
     repositoryUrl: 'https://github.com/WiseLibs/better-sqlite3',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   chai: {
     repositoryUrl: 'https://github.com/chaijs/chai',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   chokidar: {
     repositoryUrl: 'https://github.com/paulmillr/chokidar',
@@ -56,11 +71,17 @@ export const npmPackages = packageMapToArray(pm, {
   commander: {
     repositoryUrl: 'https://github.com/tj/commander.js',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   corepack: {
     repositoryUrl: 'https://github.com/nodejs/corepack',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   dotenv: {
     repositoryUrl: 'https://github.com/motdotla/dotenv',
@@ -69,7 +90,10 @@ export const npmPackages = packageMapToArray(pm, {
   'echarts-for-react': {
     repositoryUrl: 'https://github.com/hustcc/echarts-for-react',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   enquirer: {
     repositoryUrl: 'https://github.com/enquirer/enquirer',
@@ -77,21 +101,33 @@ export const npmPackages = packageMapToArray(pm, {
   },
   esbuild: {
     repositoryUrl: 'https://github.com/evanw/esbuild',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   express: {
     repositoryUrl: 'https://github.com/expressjs/express',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   'fast-deep-equal': {
     repositoryUrl: 'https://github.com/epoberezkin/fast-deep-equal',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   i18next: {
     repositoryUrl: 'https://github.com/i18next/i18next',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   inquirer: {
     repositoryUrl: 'https://github.com/SBoudrias/Inquirer.js',
@@ -115,15 +151,24 @@ export const npmPackages = packageMapToArray(pm, {
   },
   mocha: {
     repositoryUrl: 'https://github.com/mochajs/mocha',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   negotiator: {
     repositoryUrl: 'https://github.com/jshttp/negotiator',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   next: {
     repositoryUrl: 'https://github.com/vercel/next.js',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
     groupByMajorVersion: true,
   },
   'next-i18next': {
@@ -132,33 +177,54 @@ export const npmPackages = packageMapToArray(pm, {
   'next-intl': {
     repositoryUrl: 'https://github.com/amannn/next-intl',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   npm: {
     repositoryUrl: 'https://github.com/npm/cli',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   'npm-check-updates': {
     repositoryUrl: 'https://github.com/raineorshine/npm-check-updates',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   pagefind: {
     repositoryUrl: 'https://github.com/pagefind/pagefind',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   payload: {
     repositoryUrl: 'https://github.com/payloadcms/payload',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   pino: {
     repositoryUrl: 'https://github.com/pinojs/pino',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   'pino-pretty': {
     repositoryUrl: 'https://github.com/pinojs/pino-pretty',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   // placeholder
   playwright: {
@@ -170,12 +236,18 @@ export const npmPackages = packageMapToArray(pm, {
         /\d+\.\d+\.\d+-\d+/,
       ],
     },
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   pm2: {
     repositoryUrl: 'https://github.com/Unitech/pm2',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   postcss: { repositoryUrl: 'https://github.com/postcss/postcss' },
   react: {
@@ -192,29 +264,47 @@ export const npmPackages = packageMapToArray(pm, {
   recharts: {
     repositoryUrl: 'https://github.com/recharts/recharts',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   semver: {
     repositoryUrl: 'https://github.com/npm/node-semver',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   sharp: {
     repositoryUrl: 'https://github.com/lovell/sharp',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   'size-sensor': {
     repositoryUrl: 'https://github.com/hustcc/size-sensor',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   stylelint: { repositoryUrl: 'https://github.com/stylelint/stylelint' },
   superstruct: {
     repositoryUrl: 'https://github.com/ianstormtaylor/superstruct',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   'tailwind-merge': {
     repositoryUrl: 'https://github.com/dcastil/tailwind-merge',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   tailwindcss: {
     repositoryUrl: 'https://github.com/tailwindlabs/tailwindcss',
@@ -226,16 +316,25 @@ export const npmPackages = packageMapToArray(pm, {
         /^0\.0\.0-\w+/,
       ],
     },
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   'totp-generator': {
     repositoryUrl: 'https://github.com/bellstrand/totp-generator',
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   typescript: {
     repositoryUrl: 'https://github.com/microsoft/TypeScript',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   'vike-react': {
     repositoryUrl: 'https://github.com/vikejs/vike-react',
@@ -319,7 +418,10 @@ export const npmPackages = packageMapToArray(pm, {
   'whatsapp-web.js': {
     repositoryUrl: 'https://github.com/pedroslopez/whatsapp-web.js',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   zod: {
     repositoryUrl: 'https://github.com/colinhacks/zod',
@@ -327,7 +429,19 @@ export const npmPackages = packageMapToArray(pm, {
       // examples: 4.1.13-beta.0, 4.4.0-canary.20260125T200534
       excludePatterns: [/.*-(alpha|beta|canary).*/],
     },
-    changelogFetcherOptions: { tagPrefix: 'v' },
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
+  },
+  // Framer Motion
+  'framer-motion': {
+    repositoryUrl: 'https://github.com/motiondivision/motion',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   '@biomejs/biome': {
     repositoryUrl: 'https://github.com/biomejs/biome',
