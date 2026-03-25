@@ -77,6 +77,51 @@ Markdown changelog files in `changelogs/` are auto-loaded as Astro content colle
 
 Files named `_not_found.md` track versions where changelogs couldn't be fetched.
 
+## Adding a New Package
+
+When a user wants to register a new package, **ask these questions** before proceeding:
+
+1. **Which registry?** (npm, PyPI, Crates.io, RubyGems, or GitHub repo)
+2. **Package name?** (e.g., `react`, `django`, `serde`, `rails`, `owner/repo`)
+3. **Repository URL?** (GitHub URL where the changelog lives)
+4. **Where is the changelog?**
+   - GitHub Releases (tag-based)
+   - Changelog file in repo (e.g., `CHANGELOG.md`)
+   - GitHub Wiki page
+5. **Any special parsing needed?** (e.g., tag prefix like `v1.0.0` vs `1.0.0`)
+
+### Implementation Steps
+
+1. **Locate the package file** in `src/changelog/packages/{source}.ts` (e.g., `npm.ts`, `pypi.ts`)
+2. **Add package entry** to the configuration object with:
+   - `repositoryUrl`: GitHub URL
+   - `changelogFetcherOptions.type`: Fetcher strategy
+   - `changelogFetcherOptions.tagPrefix`: If needed (default: empty string)
+   - `changelogFetcherOptions.changelogFilename`: If using file strategy (e.g., `CHANGELOG.md`)
+3. **Test the configuration:**
+   ```bash
+   npm run changelog list                              # Verify package appears
+   npm run changelog versions <source> <package>       # Check version detection
+   npm run changelog fetch <source> <package> <ver>    # Fetch a single changelog
+   ```
+4. **Commit** and push changes
+
+### Example: Adding npm Package
+
+```typescript
+// src/changelog/packages/npm.ts
+export const npmPackages = packageMapToArray(pm, {
+  // ... existing packages
+  'new-package': {
+    repositoryUrl: 'https://github.com/owner/new-package',
+    changelogFetcherOptions: {
+      type: 'githubReleases',
+      tagPrefix: 'v'
+    }
+  }
+});
+```
+
 ## Environment
 
 Requires `.env` with `GITHUB_PAT` for GitHub API access to avoid rate limits.
