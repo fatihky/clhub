@@ -1,5 +1,23 @@
 ## [unreleased]
 
+### 🚀 Features
+
+- Add changelog source links with improved layout
+- Set framer-motion and tailwind-merge to semverOnly mode
+- Add new npm packages: @biomejs/biome, @clickhouse/client, date-fns, framer-motion, lru-cache, uuid
+- Simplify version fetchers for playwright, react, and tailwindcss
+
+### 🐛 Bug Fixes
+
+- Use GitHub releases for tailwind-merge instead of changelog file
+
+### 📝 Documentation
+
+- Add package registration guide
+- Update package registration instructions to maintain alphabetical order
+- Correct changelog CLI command usage in AGENTS.md
+- Rename claude.md to AGENTS.md
+
 ## [0.2.0] - 2026-03-15
 
 - added `fetch-providers` command
