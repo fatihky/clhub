@@ -92,6 +92,13 @@ export const npmPackages = packageMapToArray(pm, {
       changelogFilename: 'CHANGELOG.md',
     },
   },
+  dompurify: {
+    repositoryUrl: 'https://github.com/cure53/DOMPurify',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: {
+      type: 'githubReleases',
+    },
+  },
   'date-fns': {
     repositoryUrl: 'https://github.com/date-fns/date-fns',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
