@@ -99,7 +99,8 @@ When a user wants to register a new package, **ask these questions** before proc
    - `changelogFetcherOptions.type`: Fetcher strategy
    - `changelogFetcherOptions.tagPrefix`: If needed (default: empty string)
    - `changelogFetcherOptions.changelogFilename`: If using file strategy (e.g., `CHANGELOG.md`)
-   - **Maintain alphabetical order** by package name in the configuration object
+   - **IMPORTANT: Preserve alphabetical order** - insert the new package in its correct alphabetical position within the configuration object
+   - **CAUTION**: Some coding models (like me) may insert packages at the end by default. You must manually place the package in the correct alphabetical position.
 3. **Test the configuration:**
    ```bash
    npm run changelog list                              # Verify package appears
