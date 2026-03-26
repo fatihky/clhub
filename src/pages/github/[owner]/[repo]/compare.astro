@@ -1,12 +1,12 @@
 ---
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import { sortChangelogEntriesByVersion } from '../../../../changelog/utils';
-import { route } from '../../../../utils/route';
+import { renderMarkdown } from '../../../../db/markdown';
 import {
   getAllChangelogEntries,
   getChangelogsForPackage,
 } from '../../../../db/queries';
-import { renderMarkdown } from '../../../../db/markdown';
+import { route } from '../../../../utils/route';
 
 export async function getStaticPaths() {
   const entries = getAllChangelogEntries();

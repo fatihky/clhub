@@ -1,10 +1,10 @@
 ---
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import CopyButton from '../../../components/CopyButton.astro';
-import { route } from '../../../utils/route';
-import { getAllChangelogEntries } from '../../../db/queries';
-import { renderMarkdown } from '../../../db/markdown';
 import { getChangelogUrl } from '../../../changelog/packages';
+import CopyButton from '../../../components/CopyButton.astro';
+import { renderMarkdown } from '../../../db/markdown';
+import { getAllChangelogEntries } from '../../../db/queries';
+import { route } from '../../../utils/route';
 
 const sourceLabels: Record<string, string> = {
   crates: 'Crates.io',

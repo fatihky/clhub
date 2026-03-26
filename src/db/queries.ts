@@ -1,7 +1,7 @@
 import {
   getAllChangelogs,
-  getChangelogs,
   getChangelog,
+  getChangelogs,
   getDistinctPackages,
 } from './changelog-repository';
 

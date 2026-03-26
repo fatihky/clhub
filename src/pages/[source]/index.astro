@@ -1,8 +1,8 @@
 ---
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import { sortChangelogEntriesByVersion } from '../../changelog/utils';
-import { route } from '../../utils/route';
 import { getAllChangelogEntries } from '../../db/queries';
+import { route } from '../../utils/route';
 
 const sourceLabels: Record<string, string> = {
   crates: 'Crates.io',

@@ -17,10 +17,10 @@
     "migrate": "tsx src/tools/migrate-to-db.ts"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.37.6",
+    "@astrojs/starlight": "^0.38.2",
     "@commander-js/extra-typings": "^14.0.0",
-    "astro": "^5.17.2",
-    "better-sqlite3": "^12.6.2",
+    "astro": "^6.0.8",
+    "better-sqlite3": "^12.8.0",
     "dotenv": "^17.3.1",
     "rehype-raw": "^7.0.0",
     "rehype-stringify": "^10.0.1",
@@ -32,12 +32,12 @@
     "unified": "^11.0.5"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.15",
+    "@biomejs/biome": "^2.4.9",
     "@types/better-sqlite3": "^7.6.13",
     "@types/semver": "^7.7.1",
-    "node-addon-api": "^8.5.0",
+    "node-addon-api": "^8.7.0",
     "node-gyp": "^12.2.0",
     "tsx": "^4.21.0"
   },
-  "packageManager": "pnpm@10.29.3+sha512.498e1fb4cca5aa06c1dcf2611e6fafc50972ffe7189998c409e90de74566444298ffe43e6cd2acdc775ba1aa7cc5e092a8b7054c811ba8c5770f84693d33d2dc"
+  "packageManager": "pnpm@10.33.0"
 }

@@ -1,10 +1,10 @@
 import { ChangelogFetcher } from '../changelog-fetcher';
+import { type Logger, silentLogger } from '../logger';
 import {
   extractVersionChangelog,
   type FetchOptions,
   type GitHubRepo,
 } from './github';
-import { type Logger, silentLogger } from '../logger';
 
 function getGitHubHeaders(): Record<string, string> {
   const headers: Record<string, string> = {
