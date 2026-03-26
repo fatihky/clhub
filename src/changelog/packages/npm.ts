@@ -438,6 +438,14 @@ export const npmPackages = packageMapToArray(pm, {
       changelogFilename: 'packages/vite/CHANGELOG.md',
     },
   },
+  jose: {
+    repositoryUrl: 'https://github.com/panva/jose',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: {
+      type: 'githubReleases',
+      tagPrefix: 'v',
+    },
+  },
   'whatsapp-web.js': {
     repositoryUrl: 'https://github.com/pedroslopez/whatsapp-web.js',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,

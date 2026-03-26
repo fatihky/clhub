@@ -4,7 +4,7 @@
 
 - Add changelog source links with improved layout
 - Set framer-motion and tailwind-merge to semverOnly mode
-- Add new npm packages: @biomejs/biome, @clickhouse/client, date-fns, dompurify, framer-motion, lru-cache, uuid
+- Add new npm packages: @biomejs/biome, @clickhouse/client, date-fns, dompurify, framer-motion, jose, lru-cache, uuid
 - Simplify version fetchers for playwright, react, and tailwindcss
 
 ### 🐛 Bug Fixes
