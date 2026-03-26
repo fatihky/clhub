@@ -9,6 +9,15 @@ export const npmPackages = packageMapToArray(pm, {
     repositoryUrl: 'https://github.com/withastro/starlight',
     changelogFetcherOptions: { tagPrefix: '@astrojs/starlight@' },
   },
+  '@biomejs/biome': {
+    repositoryUrl: 'https://github.com/biomejs/biome',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: { tagPrefix: '@biomejs/biome@' },
+  },
+  '@clickhouse/client': {
+    repositoryUrl: 'https://github.com/ClickHouse/clickhouse-js',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+  },
   '@fingerprintjs/fingerprintjs': {
     repositoryUrl: 'https://github.com/fingerprintjs/fingerprintjs',
     changelogFetcherOptions: {
@@ -83,6 +92,14 @@ export const npmPackages = packageMapToArray(pm, {
       changelogFilename: 'CHANGELOG.md',
     },
   },
+  'date-fns': {
+    repositoryUrl: 'https://github.com/date-fns/date-fns',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: {
+      type: 'githubReleases',
+      tagPrefix: 'v',
+    },
+  },
   dotenv: {
     repositoryUrl: 'https://github.com/motdotla/dotenv',
     changelogFetcherOptions: { type: 'githubChangelogFile' },
@@ -122,6 +139,14 @@ export const npmPackages = packageMapToArray(pm, {
       changelogFilename: 'CHANGELOG.md',
     },
   },
+  'framer-motion': {
+    repositoryUrl: 'https://github.com/motiondivision/motion',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
+  },
   i18next: {
     repositoryUrl: 'https://github.com/i18next/i18next',
     changelogFetcherOptions: {
@@ -148,6 +173,13 @@ export const npmPackages = packageMapToArray(pm, {
   'lucide-react': {
     repositoryUrl: 'https://github.com/lucide-icons/lucide',
     versionFetcherOptions: versionFetcherOptionPresets.excludePreReleases,
+  },
+  'lru-cache': {
+    repositoryUrl: 'https://github.com/isaacs/node-lru-cache',
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
   },
   mocha: {
     repositoryUrl: 'https://github.com/mochajs/mocha',
@@ -226,16 +258,9 @@ export const npmPackages = packageMapToArray(pm, {
       changelogFilename: 'CHANGELOG.md',
     },
   },
-  // placeholder
   playwright: {
     repositoryUrl: 'https://github.com/microsoft/playwright',
-    versionFetcherOptions: {
-      excludePatterns: [
-        /.*-(alpha|beta|next)(-|\.).*/,
-        // example: 1.16.1-1634934341000
-        /\d+\.\d+\.\d+-\d+/,
-      ],
-    },
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
     changelogFetcherOptions: {
       type: 'githubChangelogFile',
       changelogFilename: 'CHANGELOG.md',
@@ -252,14 +277,7 @@ export const npmPackages = packageMapToArray(pm, {
   postcss: { repositoryUrl: 'https://github.com/postcss/postcss' },
   react: {
     repositoryUrl: 'https://github.com/facebook/react',
-    versionFetcherOptions: {
-      excludePatterns: [
-        /^0\.0\.0.*/,
-        // 19.0.0-rc-f90a6bcc-20240827
-        // 16.4.0-alpha.0911da3
-        /.*-(alpha|beta|canary|next|rc)(-\w+(-202\d+)?|\.\w+)?/,
-      ],
-    },
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
   },
   recharts: {
     repositoryUrl: 'https://github.com/recharts/recharts',
@@ -305,14 +323,7 @@ export const npmPackages = packageMapToArray(pm, {
   },
   tailwindcss: {
     repositoryUrl: 'https://github.com/tailwindlabs/tailwindcss',
-    versionFetcherOptions: {
-      excludePatterns: [
-        // examples: 4.0.0-alpha.36, 4.0.0-beta.9, 2.2.0-canary.13, 2.1.2-internal.4, 2.0.1-compat
-        /\d+\.\d+\.\d+-(alpha|beta|canary|compat|internal).*/,
-        // examples: 0.0.0-34779b4, 0.0.0-development.1, 0.0.0-insiders.855fa30
-        /^0\.0\.0-\w+/,
-      ],
-    },
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
     changelogFetcherOptions: {
       type: 'githubChangelogFile',
       changelogFilename: 'CHANGELOG.md',
@@ -327,6 +338,14 @@ export const npmPackages = packageMapToArray(pm, {
   },
   typescript: {
     repositoryUrl: 'https://github.com/microsoft/TypeScript',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+      changelogFilename: 'CHANGELOG.md',
+    },
+  },
+  uuid: {
+    repositoryUrl: 'https://github.com/uuidjs/uuid',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
     changelogFetcherOptions: {
       type: 'githubChangelogFile',
@@ -430,19 +449,5 @@ export const npmPackages = packageMapToArray(pm, {
       type: 'githubChangelogFile',
       changelogFilename: 'CHANGELOG.md',
     },
-  },
-  // Framer Motion
-  'framer-motion': {
-    repositoryUrl: 'https://github.com/motiondivision/motion',
-    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-      changelogFilename: 'CHANGELOG.md',
-    },
-  },
-  '@biomejs/biome': {
-    repositoryUrl: 'https://github.com/biomejs/biome',
-    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: { tagPrefix: '@biomejs/biome@' },
   },
 });
