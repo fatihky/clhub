@@ -107,6 +107,13 @@ export const npmPackages = packageMapToArray(pm, {
       tagPrefix: 'v',
     },
   },
+  domhandler: {
+    repositoryUrl: 'https://github.com/fb55/domhandler',
+    changelogFetcherOptions: {
+      type: 'githubReleases',
+      tagPrefix: 'v',
+    },
+  },
   dotenv: {
     repositoryUrl: 'https://github.com/motdotla/dotenv',
     changelogFetcherOptions: { type: 'githubChangelogFile' },
