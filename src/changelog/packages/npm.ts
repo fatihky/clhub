@@ -8,6 +8,7 @@ export const npmPackages = packageMapToArray(pm, {
   '@astrojs/starlight': {
     repositoryUrl: 'https://github.com/withastro/starlight',
     changelogFetcherOptions: { tagPrefix: '@astrojs/starlight@' },
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
   },
   '@biomejs/biome': {
     repositoryUrl: 'https://github.com/biomejs/biome',
@@ -55,6 +56,7 @@ export const npmPackages = packageMapToArray(pm, {
   astro: {
     repositoryUrl: 'https://github.com/withastro/astro',
     changelogFetcherOptions: { tagPrefix: 'astro@' },
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
   },
   'better-sqlite3': {
     repositoryUrl: 'https://github.com/WiseLibs/better-sqlite3',
@@ -179,7 +181,7 @@ export const npmPackages = packageMapToArray(pm, {
   },
   'lucide-react': {
     repositoryUrl: 'https://github.com/lucide-icons/lucide',
-    versionFetcherOptions: versionFetcherOptionPresets.excludePreReleases,
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
   },
   'lru-cache': {
     repositoryUrl: 'https://github.com/isaacs/node-lru-cache',
@@ -433,10 +435,7 @@ export const npmPackages = packageMapToArray(pm, {
   },
   zod: {
     repositoryUrl: 'https://github.com/colinhacks/zod',
-    versionFetcherOptions: {
-      // examples: 4.1.13-beta.0, 4.4.0-canary.20260125T200534
-      excludePatterns: [/.*-(alpha|beta|canary).*/],
-    },
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
     changelogFetcherOptions: {
       type: 'githubChangelogFile',
     },

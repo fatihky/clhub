@@ -8,7 +8,7 @@ export interface VersionInfo {
 
 export interface VersionFetcherOptions {
   /** Patterns to exclude from version list (regex or string) */
-  excludePatterns?: readonly (string | RegExp)[];
+  readonly versionPattern?: RegExp;
   /** Enable verbose logging */
   verbose?: boolean;
   /** Custom logger instance */
@@ -23,11 +23,8 @@ export abstract class VersionFetcher {
 }
 
 export const versionFetcherOptionPresets = {
-  excludePreReleases: {
-    excludePatterns: [/\d+\.\d+\.\d+-(alpha|beta|canary|next|rc).*/] as const,
-  } as const,
   onlySemver: {
-    excludePatterns: [/\d+\.\d+\.\d+[^0-9]+/],
+    versionPattern: /^\d+\.\d+\.\d+$/,
   },
 } as const;
 
@@ -49,38 +46,31 @@ export function filterVersions(
 ): VersionInfo[] {
   const logger = getLogger(options);
 
-  const excludePatterns = options?.excludePatterns;
-  if (!excludePatterns?.length) {
+  const versionPattern = options?.versionPattern;
+
+  if (!versionPattern) {
     logger.debug('No exclude patterns specified, returning all versions');
     return versions;
   }
 
   logger.debug(
-    `Filtering ${versions.length} versions with ${excludePatterns.length} exclude pattern(s)`,
+    `Filtering ${versions.length} versions with version pattern: ${versionPattern.source}`,
   );
 
   const filtered = versions.filter((v) => {
-    for (const pattern of excludePatterns) {
-      if (typeof pattern === 'string') {
-        if (v.version.includes(pattern)) {
-          logger.debug(
-            `Excluding version "${v.version}" (matches pattern: "${pattern}")`,
-          );
-          return false;
-        }
-      } else {
-        if (pattern.test(v.version)) {
-          logger.debug(
-            `Excluding version "${v.version}" (matches pattern: ${pattern})`,
-          );
-          return false;
-        }
-      }
+    if (versionPattern.test(v.version)) {
+      logger.debug(
+        `Including version "${v.version}" (matches pattern: ${versionPattern.source})`,
+      );
+
+      return true;
     }
-    return true;
+
+    return false;
   });
 
   logger.debug(`Filtered to ${filtered.length} versions`);
+
   return filtered;
 }
 
