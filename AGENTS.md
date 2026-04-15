@@ -29,6 +29,8 @@ npm run changelog -- sync-registry -m <manager>                                #
 npm run changelog -- sync-all                                                  # Fetch all packages from all registries
 ```
 
+> **Important:** Whenever CLI commands are added, renamed, or removed, update the command lists in **both** `AGENTS.md` (this file) and `README.md`.
+
 ## Architecture
 
 ### Core Abstractions
