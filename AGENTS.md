@@ -21,12 +21,12 @@ npm run changelog    # CLI for changelog management (tsx src/tools/cli.ts)
 
 **CLI commands:**
 ```bash
-npm run changelog -- list                                                      # List all configured packages
-npm run changelog -- versions -m <manager> -p <package>                        # List all versions (manager: npm, pypi, crates, rubygems)
-npm run changelog -- fetch -m <manager> -p <package> -v <version>             # Fetch single changelog
-npm run changelog -- fetch-all -m <manager> -p <package>                       # Batch fetch all versions
-npm run changelog -- fetch-source -m <manager>                                 # Fetch all packages from a source
-npm run changelog -- fetch-providers                                           # Fetch all packages from all sources
+npm run changelog -- packages                                                   # List all configured packages
+npm run changelog -- list-versions -m <manager> -p <package>                   # List all versions (manager: npm, pypi, crates, rubygems)
+npm run changelog -- get -m <manager> -p <package> -v <version>               # Fetch single changelog
+npm run changelog -- sync -m <manager> -p <package>                            # Batch fetch all versions
+npm run changelog -- sync-registry -m <manager>                                # Fetch all packages from a registry
+npm run changelog -- sync-all                                                  # Fetch all packages from all registries
 ```
 
 ## Architecture
@@ -103,9 +103,9 @@ When a user wants to register a new package, **ask these questions** before proc
    - **CAUTION**: Some coding models (like me) may insert packages at the end by default. You must manually place the package in the correct alphabetical position.
 3. **Test the configuration:**
    ```bash
-   npm run changelog list                              # Verify package appears
-   npm run changelog versions <source> <package>       # Check version detection
-   npm run changelog fetch <source> <package> <ver>    # Fetch a single changelog
+   npm run changelog packages                              # Verify package appears
+   npm run changelog list-versions <source> <package>      # Check version detection
+   npm run changelog get <source> <package> <ver>          # Fetch a single changelog
    ```
 4. **Commit** and push changes
 

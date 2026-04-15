@@ -35,8 +35,8 @@ Want to add a new package? Here's how:
 
 4. **Test it:**
    ```bash
-   npm run changelog versions <registry> <package>
-   npm run changelog fetch <registry> <package> <version>
+   npm run changelog list-versions <registry> <package>
+   npm run changelog get <registry> <package> <version>
    ```
 
 5. **Submit a PR**

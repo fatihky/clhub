@@ -228,7 +228,7 @@ async function processPackageList(
   return { fetched: totalFetched, skipped: totalSkipped, notFound: totalNotFound };
 }
 
-const fetchCommand = new Command('fetch')
+const fetchCommand = new Command('get')
   .description('Fetch changelog for a package')
   .requiredOption('-p, --package <name>', 'Package name')
   .requiredOption('-v, --version <version>', 'Package version')
@@ -281,7 +281,7 @@ const fetchCommand = new Command('fetch')
     }
   });
 
-const listCommand = new Command('list')
+const listCommand = new Command('packages')
   .description('List all available packages')
   .option(
     '-m, --manager <manager>',
@@ -327,7 +327,7 @@ const listCommand = new Command('list')
     }
   });
 
-const versionsCommand = new Command('versions')
+const versionsCommand = new Command('list-versions')
   .description('List all versions of a package from the registry')
   .requiredOption('-p, --package <name>', 'Package name')
   .option(
@@ -372,7 +372,7 @@ const versionsCommand = new Command('versions')
     }
   });
 
-const fetchAllCommand = new Command('fetch-all')
+const fetchAllCommand = new Command('sync')
   .description('Fetch changelogs for all versions of a package')
   .requiredOption('-p, --package <name>', 'Package name')
   .option(
@@ -410,7 +410,7 @@ const fetchAllCommand = new Command('fetch-all')
     console.log('\nDone!');
   });
 
-const fetchSourceCommand = new Command('fetch-source')
+const fetchSourceCommand = new Command('sync-registry')
   .description('Fetch changelogs for all packages from a source')
   .requiredOption(
     '-m, --manager <manager>',
@@ -451,7 +451,7 @@ const fetchSourceCommand = new Command('fetch-source')
     printFinalSummary(packages.length, result.fetched, result.skipped, result.notFound);
   });
 
-const fetchProvidersCommand = new Command('fetch-providers')
+const fetchProvidersCommand = new Command('sync-all')
   .description('Fetch changelogs for all packages from all providers')
   .option('-l, --limit <number>', 'Maximum number of versions per package')
   .option('-s, --save', 'Save changelogs to database')
