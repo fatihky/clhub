@@ -87,19 +87,19 @@ export const npmPackages = packageMapToArray(pm, {
       type: 'githubChangelogFile',
     },
   },
-  dompurify: {
-    repositoryUrl: 'https://github.com/cure53/DOMPurify',
-    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: {
-      type: 'githubReleases',
-    },
-  },
   'date-fns': {
     repositoryUrl: 'https://github.com/date-fns/date-fns',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
     changelogFetcherOptions: {
       type: 'githubReleases',
       tagPrefix: 'v',
+    },
+  },
+  dompurify: {
+    repositoryUrl: 'https://github.com/cure53/DOMPurify',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: {
+      type: 'githubReleases',
     },
   },
   domhandler: {
@@ -171,12 +171,20 @@ export const npmPackages = packageMapToArray(pm, {
     repositoryUrl: 'https://github.com/nodeca/js-yaml',
     changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
+  jose: {
+    repositoryUrl: 'https://github.com/panva/jose',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: {
+      type: 'githubReleases',
+      tagPrefix: 'v',
+    },
+  },
   lodash: {
     repositoryUrl: 'https://github.com/lodash/lodash',
     changelogFetcherOptions: {
       type: 'githubWiki',
-      changelogFilename: 'Changelog', // optional, defaults to 'Changelog'
-      tagPrefix: 'v', // optional, for version matching
+      changelogFilename: 'Changelog',
+      tagPrefix: 'v',
     },
   },
   'lucide-react': {
@@ -416,14 +424,6 @@ export const npmPackages = packageMapToArray(pm, {
     changelogFetcherOptions: {
       type: 'githubChangelogFile',
       changelogFilename: 'packages/vite/CHANGELOG.md',
-    },
-  },
-  jose: {
-    repositoryUrl: 'https://github.com/panva/jose',
-    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: {
-      type: 'githubReleases',
-      tagPrefix: 'v',
     },
   },
   'whatsapp-web.js': {
