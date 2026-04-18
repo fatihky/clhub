@@ -29,6 +29,10 @@ export const npmPackages = packageMapToArray(pm, {
     repositoryUrl: 'https://github.com/formatjs/formatjs',
     changelogFetcherOptions: { tagPrefix: '@formatjs/intl-localematcher@' },
   },
+  '@fumadocs/cli': {
+    repositoryUrl: 'https://github.com/fuma-nama/fumadocs',
+    changelogFetcherOptions: { tagPrefix: '@fumadocs/cli@' },
+  },
   '@inquirer/prompts': {
     repositoryUrl: 'https://github.com/SBoudrias/Inquirer.js',
     changelogFetcherOptions: { tagPrefix: '@inquirer/prompts@' },
@@ -77,15 +81,17 @@ export const npmPackages = packageMapToArray(pm, {
   commander: {
     repositoryUrl: 'https://github.com/tj/commander.js',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   corepack: {
     repositoryUrl: 'https://github.com/nodejs/corepack',
     changelogFetcherOptions: {
       type: 'githubChangelogFile',
     },
+  },
+  'create-fumadocs-app': {
+    repositoryUrl: 'https://github.com/fuma-nama/fumadocs',
+    changelogFetcherOptions: { tagPrefix: 'create-fumadocs-app@' },
   },
   'date-fns': {
     repositoryUrl: 'https://github.com/date-fns/date-fns',
@@ -98,16 +104,11 @@ export const npmPackages = packageMapToArray(pm, {
   dompurify: {
     repositoryUrl: 'https://github.com/cure53/DOMPurify',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: {
-      type: 'githubReleases',
-    },
+    changelogFetcherOptions: { type: 'githubReleases' },
   },
   domhandler: {
     repositoryUrl: 'https://github.com/fb55/domhandler',
-    changelogFetcherOptions: {
-      type: 'githubReleases',
-      tagPrefix: 'v',
-    },
+    changelogFetcherOptions: { type: 'githubReleases', tagPrefix: 'v' },
   },
   dotenv: {
     repositoryUrl: 'https://github.com/motdotla/dotenv',
@@ -116,9 +117,7 @@ export const npmPackages = packageMapToArray(pm, {
   'echarts-for-react': {
     repositoryUrl: 'https://github.com/hustcc/echarts-for-react',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   enquirer: {
     repositoryUrl: 'https://github.com/enquirer/enquirer',
@@ -126,30 +125,50 @@ export const npmPackages = packageMapToArray(pm, {
   },
   esbuild: {
     repositoryUrl: 'https://github.com/evanw/esbuild',
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   express: {
     repositoryUrl: 'https://github.com/expressjs/express',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   'fast-deep-equal': {
     repositoryUrl: 'https://github.com/epoberezkin/fast-deep-equal',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   'framer-motion': {
     repositoryUrl: 'https://github.com/motiondivision/motion',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
+  },
+  'fumadocs-core': {
+    repositoryUrl: 'https://github.com/fuma-nama/fumadocs',
+    changelogFetcherOptions: { tagPrefix: 'fumadocs-core@' },
+  },
+  'fumadocs-mdx': {
+    repositoryUrl: 'https://github.com/fuma-nama/fumadocs',
+    changelogFetcherOptions: { tagPrefix: 'fumadocs-mdx@' },
+  },
+  'fumadocs-openapi': {
+    repositoryUrl: 'https://github.com/fuma-nama/fumadocs',
+    changelogFetcherOptions: { tagPrefix: 'fumadocs-openapi@' },
+  },
+  'fumadocs-twoslash': {
+    repositoryUrl: 'https://github.com/fuma-nama/fumadocs',
+    changelogFetcherOptions: { tagPrefix: 'fumadocs-twoslash@' },
+  },
+  'fumadocs-typescript': {
+    repositoryUrl: 'https://github.com/fuma-nama/fumadocs',
+    changelogFetcherOptions: { tagPrefix: 'fumadocs-typescript@' },
+  },
+  'fumadocs-ui': {
+    repositoryUrl: 'https://github.com/fuma-nama/fumadocs',
+    changelogFetcherOptions: { tagPrefix: 'fumadocs-ui@' },
+  },
+  fumapress: {
+    repositoryUrl: 'https://github.com/fuma-nama/fumadocs',
+    changelogFetcherOptions: { tagPrefix: 'fumapress@' },
   },
   gitnexus: {
     repositoryUrl: 'https://github.com/abhigyanpatwari/GitNexus',
@@ -241,16 +260,12 @@ export const npmPackages = packageMapToArray(pm, {
   },
   pagefind: {
     repositoryUrl: 'https://github.com/pagefind/pagefind',
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   payload: {
     repositoryUrl: 'https://github.com/payloadcms/payload',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   pino: {
     repositoryUrl: 'https://github.com/pinojs/pino',
