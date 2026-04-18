@@ -27,15 +27,15 @@ export const npmPackages = packageMapToArray(pm, {
   },
   '@formatjs/intl-localematcher': {
     repositoryUrl: 'https://github.com/formatjs/formatjs',
-    changelogFetcherOptions: {
-      tagPrefix: '@formatjs/intl-localematcher@',
-    },
+    changelogFetcherOptions: { tagPrefix: '@formatjs/intl-localematcher@' },
   },
   '@inquirer/prompts': {
     repositoryUrl: 'https://github.com/SBoudrias/Inquirer.js',
-    changelogFetcherOptions: {
-      tagPrefix: '@inquirer/prompts@',
-    },
+    changelogFetcherOptions: { tagPrefix: '@inquirer/prompts@' },
+  },
+  '@linear/sdk': {
+    repositoryUrl: 'https://github.com/linear/linear',
+    changelogFetcherOptions: { tagPrefix: '@linear/sdk@' },
   },
   '@orama/orama': {
     repositoryUrl: 'https://github.com/oramasearch/orama',
