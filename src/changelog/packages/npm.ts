@@ -247,16 +247,17 @@ export const npmPackages = packageMapToArray(pm, {
   },
   npm: {
     repositoryUrl: 'https://github.com/npm/cli',
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   'npm-check-updates': {
     repositoryUrl: 'https://github.com/raineorshine/npm-check-updates',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
+  },
+  openai: {
+    repositoryUrl: 'https://github.com/openai/openai-node',
+    changelogFetcherOptions: { tagPrefix: 'v' },
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
   },
   pagefind: {
     repositoryUrl: 'https://github.com/pagefind/pagefind',
@@ -269,29 +270,21 @@ export const npmPackages = packageMapToArray(pm, {
   },
   pino: {
     repositoryUrl: 'https://github.com/pinojs/pino',
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   'pino-pretty': {
     repositoryUrl: 'https://github.com/pinojs/pino-pretty',
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   playwright: {
     repositoryUrl: 'https://github.com/microsoft/playwright',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   pm2: {
     repositoryUrl: 'https://github.com/Unitech/pm2',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   postcss: { repositoryUrl: 'https://github.com/postcss/postcss' },
   react: {
@@ -301,9 +294,7 @@ export const npmPackages = packageMapToArray(pm, {
   recharts: {
     repositoryUrl: 'https://github.com/recharts/recharts',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   semver: {
     repositoryUrl: 'https://github.com/npm/node-semver',
@@ -313,23 +304,17 @@ export const npmPackages = packageMapToArray(pm, {
   },
   sharp: {
     repositoryUrl: 'https://github.com/lovell/sharp',
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   'size-sensor': {
     repositoryUrl: 'https://github.com/hustcc/size-sensor',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   stylelint: { repositoryUrl: 'https://github.com/stylelint/stylelint' },
   superstruct: {
     repositoryUrl: 'https://github.com/ianstormtaylor/superstruct',
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   'tailwind-merge': {
     repositoryUrl: 'https://github.com/dcastil/tailwind-merge',
@@ -338,29 +323,21 @@ export const npmPackages = packageMapToArray(pm, {
   tailwindcss: {
     repositoryUrl: 'https://github.com/tailwindlabs/tailwindcss',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   'totp-generator': {
     repositoryUrl: 'https://github.com/bellstrand/totp-generator',
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   typescript: {
     repositoryUrl: 'https://github.com/microsoft/TypeScript',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   uuid: {
     repositoryUrl: 'https://github.com/uuidjs/uuid',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
-    changelogFetcherOptions: {
-      type: 'githubChangelogFile',
-    },
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   'vike-react': {
     repositoryUrl: 'https://github.com/vikejs/vike-react',
