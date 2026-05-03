@@ -27,6 +27,7 @@ npm run changelog -- get -m <manager> -p <package> -v <version>               # 
 npm run changelog -- sync -m <manager> -p <package>                            # Batch fetch all versions
 npm run changelog -- sync-registry -m <manager>                                # Fetch all packages from a registry
 npm run changelog -- sync-all                                                  # Fetch all packages from all registries
+ncu --format diff | npm run changelog -- ncu-links                             # Parse ncu diff output and print changelog compare URLs
 ```
 
 > **Important:** Whenever CLI commands are added, renamed, or removed, update the command lists in **both** `AGENTS.md` (this file) and `README.md`.

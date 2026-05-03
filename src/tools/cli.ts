@@ -17,6 +17,7 @@ import {
   markVersionNotFound,
 } from '../db/changelog-repository';
 import { closeDatabase } from '../db/database';
+import { ncuLinksCommand } from './ncu-links';
 
 const program = new Command();
 
@@ -194,7 +195,11 @@ async function fetchAllVersionsForPackage(
     }
   }
 
-  return { fetched: fetchedCount, skipped: skippedCount, notFound: notFoundCount };
+  return {
+    fetched: fetchedCount,
+    skipped: skippedCount,
+    notFound: notFoundCount,
+  };
 }
 
 async function processPackageList(
@@ -225,7 +230,11 @@ async function processPackageList(
     }
   }
 
-  return { fetched: totalFetched, skipped: totalSkipped, notFound: totalNotFound };
+  return {
+    fetched: totalFetched,
+    skipped: totalSkipped,
+    notFound: totalNotFound,
+  };
 }
 
 const fetchCommand = new Command('get')
@@ -241,7 +250,14 @@ const fetchCommand = new Command('get')
   .option('-s, --save', 'Save changelog to database')
   .option('--verbose', 'Enable verbose logging')
   .action(async (options) => {
-    const { package: packageName, version, manager, repo, save, verbose = false } = options;
+    const {
+      package: packageName,
+      version,
+      manager,
+      repo,
+      save,
+      verbose = false,
+    } = options;
     const logger = createLogger(verbose);
     const pm = requirePackageManager(manager);
     const pkg = resolvePackage(pm, packageName, manager, repo);
@@ -385,7 +401,14 @@ const fetchAllCommand = new Command('sync')
   .option('-s, --save', 'Save changelogs to database')
   .option('--verbose', 'Enable verbose logging')
   .action(async (options) => {
-    const { package: packageName, manager, repo, limit, save, verbose = false } = options;
+    const {
+      package: packageName,
+      manager,
+      repo,
+      limit,
+      save,
+      verbose = false,
+    } = options;
     const logger = createLogger(verbose);
     const pm = requirePackageManager(manager);
     const pkg = resolvePackage(pm, packageName, manager, repo);
@@ -448,7 +471,12 @@ const fetchSourceCommand = new Command('sync-registry')
       closeDatabase();
     }
 
-    printFinalSummary(packages.length, result.fetched, result.skipped, result.notFound);
+    printFinalSummary(
+      packages.length,
+      result.fetched,
+      result.skipped,
+      result.notFound,
+    );
   });
 
 const fetchProvidersCommand = new Command('sync-all')
@@ -513,5 +541,6 @@ program.addCommand(versionsCommand);
 program.addCommand(fetchAllCommand);
 program.addCommand(fetchSourceCommand);
 program.addCommand(fetchProvidersCommand);
+program.addCommand(ncuLinksCommand);
 
 program.parse();
