@@ -14,7 +14,9 @@
     "lint": "biome check",
     "format": "biome format --write",
     "changelog": "tsx src/tools/cli.ts",
-    "migrate": "tsx src/tools/migrate-to-db.ts"
+    "migrate": "tsx src/tools/migrate-to-db.ts",
+    "sync:github": "pnpm changelog sync-registry -m github --save",
+    "sync:npm": "pnpm changelog sync-registry -m npm --save"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.38.3",
