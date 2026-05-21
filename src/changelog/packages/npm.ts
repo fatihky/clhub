@@ -304,9 +304,19 @@ export const npmPackages = packageMapToArray(pm, {
     changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   postcss: { repositoryUrl: 'https://github.com/postcss/postcss' },
+  'posthog-js': {
+    repositoryUrl: 'https://github.com/PostHog/posthog-js',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: { type: 'githubReleases', tagPrefix: 'posthog-js@' },
+  },
   react: {
     repositoryUrl: 'https://github.com/facebook/react',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+  },
+  'react-hook-form': {
+    repositoryUrl: 'https://github.com/react-hook-form/react-hook-form',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
   },
   recharts: {
     repositoryUrl: 'https://github.com/recharts/recharts',
