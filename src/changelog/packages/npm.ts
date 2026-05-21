@@ -186,6 +186,10 @@ export const npmPackages = packageMapToArray(pm, {
     repositoryUrl: 'https://github.com/SBoudrias/Inquirer.js',
     changelogFetcherOptions: { tagPrefix: 'inquirer@' },
   },
+  jiti: {
+    repositoryUrl: 'https://github.com/unjs/jiti',
+    changelogFetcherOptions: { type: 'githubChangelogFile' },
+  },
   'js-yaml': {
     repositoryUrl: 'https://github.com/nodeca/js-yaml',
     changelogFetcherOptions: { type: 'githubChangelogFile' },
