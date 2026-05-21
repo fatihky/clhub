@@ -214,6 +214,12 @@ export const npmPackages = packageMapToArray(pm, {
     repositoryUrl: 'https://github.com/lucide-icons/lucide',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
   },
+  'lint-staged': {
+    repositoryUrl: 'https://github.com/lint-staged/lint-staged',
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+    },
+  },
   'lru-cache': {
     repositoryUrl: 'https://github.com/isaacs/node-lru-cache',
     changelogFetcherOptions: {
