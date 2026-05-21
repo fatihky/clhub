@@ -53,6 +53,13 @@ export const npmPackages = packageMapToArray(pm, {
       type: 'githubChangelogFile',
     },
   },
+  '@typescript-eslint/eslint-plugin': {
+    repositoryUrl: 'https://github.com/typescript-eslint/typescript-eslint',
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+    changelogFetcherOptions: {
+      type: 'githubChangelogFile',
+    },
+  },
   antd: {
     repositoryUrl: 'https://github.com/ant-design/ant-design',
     versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
