@@ -12,6 +12,13 @@ export const githubPackages: Package[] = [
   new Package(pm, 'JerryZLiu/Dayflow', 'https://github.com/JerryZLiu/Dayflow'),
   new Package(
     pm,
+    'anomalyco/opencode',
+    'https://github.com/anomalyco/opencode',
+    undefined,
+    { tagPrefix: 'v' },
+  ),
+  new Package(
+    pm,
     'anthropics/claude-code',
     'https://github.com/anthropics/claude-code',
   ),
