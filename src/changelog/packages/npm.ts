@@ -183,6 +183,13 @@ export const npmPackages = packageMapToArray(pm, {
       type: 'githubChangelogFile',
     },
   },
+  graphql: {
+    repositoryUrl: 'https://github.com/graphql/graphql-js',
+    changelogFetcherOptions: {
+      type: 'githubReleases', tagPrefix: 'v'
+    },
+    versionFetcherOptions: versionFetcherOptionPresets.onlySemver,
+  },
   i18next: {
     repositoryUrl: 'https://github.com/i18next/i18next',
     changelogFetcherOptions: {
